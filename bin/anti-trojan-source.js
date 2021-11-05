@@ -62,9 +62,11 @@ async function handleCliFlags({ filesList, flags }) {
     results.forEach((result) => {
       console.error(` - ${result.file}`)
     })
+    console.error()
     process.exit(1)
   } else {
     console.log('[\u001B[32m✓\u001B[39m] No case of trojan source detected')
+    console.log()
     process.exit(0)
   }
 }
