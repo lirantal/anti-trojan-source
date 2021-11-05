@@ -7,7 +7,7 @@
 </p>
 
 <p align="center">
-  <img src="https://github.com/lirantal/anti-trojan-source/raw/master/.github/anti-trojan-source-logo.png" height="150">
+  <img src="https://github.com/lirantal/anti-trojan-source/raw/main/.github/anti-trojan-source-logo.png" height="220">
 </p>
 
 <p align="center">
@@ -30,7 +30,18 @@ The following publication on the topic of unicode characters attacks, dubbed [Tr
 
 For more information on the topic, you're welcome to read on the official website [trojansource.codes](https://trojansource.codes/) and the following [source code repository](https://github.com/nickboucher/trojan-source/) which contains the source code of the publication.
 
-# Usage as command-line tool
+---
+
+Table of Contents
+- [Use as a CLI](#use-as-a-cli)
+  - [Detect Trojan Source attacks using file globbing](detect-trojan-source-attacks-using-file-globbing)
+  - [Detect Trojan Source attacks using file paths](detect-trojan-source-attacks-using-file-paths)
+  - [Detect Trojan Source attacks by piping input](detect-trojan-source-attacks-by-piping-input)
+- [Use as a library](#use-as-a-library)
+
+---
+
+# Use as a CLI
 
 `anti-trojan-source` is an npm package that supports detecting files that contain bidirectional unicode characters in them, per the research.
 
@@ -71,7 +82,7 @@ If you just run `npx anti-trojan-source` and pipe in a file contents, it will de
 cat /src/index.js | npx anti-trojan-source
 ```
 
-# Usage as a library
+# Use as a library
 
 To use it as a library and pass it file contents to detect:
 
