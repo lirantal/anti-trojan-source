@@ -32,6 +32,10 @@ jobs:
         run: yarn install --frozen-lockfile --ignore-engines
       - name: run tests
         run: npm run test
+      - name: run code coverage
+        run: npx codecov
+        env:
+          CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
 
   release:
     name: do semantic release
