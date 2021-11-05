@@ -4,7 +4,7 @@
   "description": "Detect trojan source attacks that employ unicode bidi attacks to inject malicious code",
   "main": "main.js",
   "bin": {
-    "cli": "bin/cli.js"
+    "anti-trojan-source": "bin/anti-trojan-source.js"
   },
   "exports": {
     ".": "./src/main.js"
@@ -45,7 +45,10 @@
     "type": "git",
     "url": "https://github.com/lirantal/anti-trojan-source.git"
   },
-  "dependencies": {},
+  "dependencies": {
+    "globby": "^12.0.2",
+    "meow": "^10.1.1"
+  },
   "devDependencies": {
     "@babel/core": "^7.15.8",
     "@babel/eslint-parser": "^7.15.8",
@@ -95,7 +98,7 @@
   },
   "lint-staged": {
     "**/*.js": [
-      "npm run format"
+      "./bin/anti-trojan-source.js"
     ]
   },
   "commitlint": {
