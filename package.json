@@ -115,6 +115,11 @@
   "eslintIgnore": [
     "coverage/**"
   ],
+  "babel": {
+    "plugins": [
+      "@babel/plugin-syntax-top-level-await"
+    ]
+  },
   "eslintConfig": {
     "plugins": [
       "node",
