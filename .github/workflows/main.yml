@@ -12,7 +12,7 @@ jobs:
         with:
           node-version: '16'
       - name: install dependencies
-        run: yarn install --frozen-lockfile
+        run: npm ci
       - name: lint code
         run: npm run lint
 
@@ -29,7 +29,7 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
       - name: install dependencies
-        run: yarn install --frozen-lockfile --ignore-engines
+        run: npm ci --ignore-engines
       - name: run tests
         run: npm run test
       - name: run code coverage
@@ -48,7 +48,7 @@ jobs:
         with:
           node-version: '16'
       - name: install dependencies
-        run: yarn install --frozen-lockfile --ignore-engines --only=production
+        run: npm ci --ignore-engines --only=production
       - name: release
         run: npx semantic-release
         env:
