@@ -73,7 +73,6 @@
   "jest": {
     "testEnvironment": "node",
     "verbose": true,
-    "notify": true,
     "collectCoverage": true,
     "coverageThreshold": {
       "global": {
