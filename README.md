@@ -34,9 +34,9 @@ For more information on the topic, you're welcome to read on the official websit
 
 Table of Contents
 - [Use as a CLI](#use-as-a-cli)
-  - [Detect Trojan Source attacks using file globbing](detect-trojan-source-attacks-using-file-globbing)
-  - [Detect Trojan Source attacks using file paths](detect-trojan-source-attacks-using-file-paths)
-  - [Detect Trojan Source attacks by piping input](detect-trojan-source-attacks-by-piping-input)
+  - [Detect Trojan Source attacks using file globbing](#detect-trojan-source-attacks-using-file-globbing)
+  - [Detect Trojan Source attacks using file paths](#detect-trojan-source-attacks-using-file-paths)
+  - [Detect Trojan Source attacks by piping input](#detect-trojan-source-attacks-by-piping-input)
 - [Use as a library](#use-as-a-library)
 
 ---
