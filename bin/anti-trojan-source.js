@@ -33,8 +33,6 @@ const rl = readline.createInterface({
 })
 
 if (cli.input?.length > 0 || (cli.flags.hasOwnProperty('files') && cli.flags.files !== '')) {
-  console.log(cli.input)
-  console.log(cli.flags)
   handleCliFlags({ filesList: cli.input, flags: cli.flags })
   process.stdin.unref()
 } else {
@@ -82,7 +80,6 @@ function handleStdin() {
   })
 
   rl.on('close', () => {
-    console.log('goodbye!')
     process.stdin.unref()
   })
 }
