@@ -47,8 +47,6 @@ jobs:
       - uses: actions/setup-node@v2
         with:
           node-version: '16'
-      - name: install dependencies
-        run: npm ci --ignore-engines --only=production
       - name: release
         run: npx semantic-release
         env:
