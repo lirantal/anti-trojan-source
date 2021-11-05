@@ -98,7 +98,7 @@
   },
   "lint-staged": {
     "**/*.js": [
-      "./bin/anti-trojan-source.js"
+      "npm run format"
     ]
   },
   "commitlint": {
