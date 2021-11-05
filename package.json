@@ -14,7 +14,8 @@
   },
   "type": "module",
   "files": [
-    "src"
+    "src",
+    "bin"
   ],
   "scripts": {
     "lint": "eslint . && npm run lint:lockfile",
