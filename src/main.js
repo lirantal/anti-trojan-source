@@ -1,6 +1,8 @@
+import { dangerousBidiChars } from '../src/constants.js'
+
 function hasTrojanSource({ sourceText }) {
   const sourceTextToSearch = sourceText.toString()
-  const dangerousBidiChars = ['\u061c']
+
   for (const bidiChar of dangerousBidiChars) {
     if (sourceTextToSearch.includes(bidiChar)) {
       return true
@@ -10,4 +12,4 @@ function hasTrojanSource({ sourceText }) {
   return false
 }
 
-export { hasTrojanSource }
+export { hasTrojanSource, dangerousBidiChars }
