@@ -35,7 +35,17 @@
   },
   "license": "Apache-2.0",
   "keywords": [
-    "trojan"
+    "trojan",
+    "trojan source",
+    "source",
+    "unicode",
+    "bidi",
+    "bidirectional attacks",
+    "bidi attacks",
+    "bidi security",
+    "unicode security",
+    "attacks",
+    "security"
   ],
   "homepage": "https://github.com/lirantal/anti-trojan-source",
   "bugs": {
