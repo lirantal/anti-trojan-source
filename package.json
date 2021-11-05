@@ -1,0 +1,208 @@
+{
+  "name": "anti-trojan-source",
+  "version": "0.0.0-development",
+  "description": "Detect trojan source attacks that employ unicode bidi attacks to inject malicious code",
+  "main": "main.js",
+  "bin": {
+    "cli": "bin/cli.js"
+  },
+  "exports": {
+    ".": "./src/main.js"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "type": "module",
+  "files": [
+    "src"
+  ],
+  "scripts": {
+    "lint": "eslint . && npm run lint:lockfile",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --config .prettierrc.json --write '**/*.js'",
+    "test": "NODE_OPTIONS=--experimental-vm-modules npx jest",
+    "test:watch": "NODE_OPTIONS=--experimental-vm-modules npx jest --watch",
+    "coverage:view": "open-cli coverage/lcov-report/index.html",
+    "semantic-release": "npx semantic-release",
+    "prepare": "husky install",
+    "lint:lockfile": "lockfile-lint --path package-lock.json --validate-https --allowed-hosts npm yarn"
+  },
+  "author": {
+    "name": "Liran Tal",
+    "email": "liran.tal@gmail.com",
+    "url": "https://github.com/lirantal"
+  },
+  "license": "Apache-2.0",
+  "keywords": [
+    "trojan"
+  ],
+  "homepage": "https://github.com/lirantal/anti-trojan-source",
+  "bugs": {
+    "url": "https://github.com/lirantal/anti-trojan-source/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lirantal/anti-trojan-source.git"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@babel/core": "^7.15.8",
+    "@babel/eslint-parser": "^7.15.8",
+    "@babel/plugin-syntax-top-level-await": "^7.14.5",
+    "@commitlint/cli": "^13.2.1",
+    "@commitlint/config-conventional": "^13.2.0",
+    "@semantic-release/changelog": "^6.0.0",
+    "@semantic-release/commit-analyzer": "^9.0.1",
+    "@semantic-release/git": "^10.0.0",
+    "@semantic-release/github": "^8.0.1",
+    "@semantic-release/npm": "^8.0.2",
+    "@semantic-release/release-notes-generator": "^10.0.2",
+    "eslint": "^8.0.1",
+    "eslint-plugin-jest": "^25.2.2",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-security": "^1.4.0",
+    "eslint-plugin-standard": "^4.1.0",
+    "husky": "^7.0.4",
+    "jest": "^27.3.1",
+    "lint-staged": "^11.2.3",
+    "lockfile-lint": "^4.6.2",
+    "open-cli": "^7.0.1",
+    "prettier": "^2.4.1"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "verbose": true,
+    "notify": true,
+    "collectCoverage": true,
+    "coverageThreshold": {
+      "global": {
+        "branches": 80,
+        "functions": 80,
+        "lines": 80,
+        "statements": 80
+      }
+    },
+    "testPathIgnorePatterns": [
+      "/__tests__/.*/__fixtures__/.*"
+    ],
+    "collectCoverageFrom": [
+      "index.js",
+      "src/**/*.{js,ts}"
+    ],
+    "testMatch": [
+      "**/*.test.js"
+    ]
+  },
+  "lint-staged": {
+    "**/*.js": [
+      "npm run format"
+    ]
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
+  "standard": {
+    "env": [
+      "jest"
+    ],
+    "parser": "babel-eslint",
+    "ignore": [
+      "**/out/"
+    ]
+  },
+  "eslintIgnore": [
+    "coverage/**"
+  ],
+  "eslintConfig": {
+    "plugins": [
+      "node",
+      "security",
+      "jest"
+    ],
+    "extends": [
+      "plugin:node/recommended"
+    ],
+    "rules": {
+      "node/no-unsupported-features/es-syntax": [
+        "error",
+        {
+          "ignores": [
+            "dynamicImport",
+            "modules"
+          ]
+        }
+      ],
+      "no-process-exit": "warn",
+      "jest/no-disabled-tests": "error",
+      "jest/no-focused-tests": "error",
+      "jest/no-identical-title": "error",
+      "node/no-unsupported-features": "off",
+      "node/no-unpublished-require": "off",
+      "security/detect-non-literal-fs-filename": "error",
+      "security/detect-unsafe-regex": "error",
+      "security/detect-buffer-noassert": "error",
+      "security/detect-child-process": "error",
+      "security/detect-disable-mustache-escape": "error",
+      "security/detect-eval-with-expression": "error",
+      "security/detect-no-csrf-before-method-override": "error",
+      "security/detect-non-literal-regexp": "error",
+      "security/detect-object-injection": "warn",
+      "security/detect-possible-timing-attacks": "error",
+      "security/detect-pseudoRandomBytes": "error",
+      "space-before-function-paren": "off",
+      "object-curly-spacing": "off"
+    },
+    "parser": "@babel/eslint-parser",
+    "parserOptions": {
+      "sourceType": "module",
+      "ecmaFeatures": {
+        "impliedStrict": true
+      }
+    }
+  },
+  "release": {
+    "branches": [
+      "main",
+      "master"
+    ],
+    "analyzeCommits": {
+      "preset": "angular",
+      "releaseRules": [
+        {
+          "type": "docs",
+          "release": "patch"
+        },
+        {
+          "type": "refactor",
+          "release": "patch"
+        },
+        {
+          "type": "style",
+          "release": "patch"
+        }
+      ]
+    }
+  },
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    [
+      "@semantic-release/changelog",
+      {
+        "changelogFile": "CHANGELOG.md"
+      }
+    ],
+    "@semantic-release/npm",
+    [
+      "@semantic-release/git",
+      {
+        "assets": [
+          "CHANGELOG.md"
+        ]
+      }
+    ],
+    "@semantic-release/github"
+  ]
+}

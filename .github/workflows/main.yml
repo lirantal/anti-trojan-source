@@ -1,0 +1,52 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: 'ubuntu-latest'
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+      - name: install dependencies
+        run: yarn install --frozen-lockfile
+      - name: lint code
+        run: npm run lint
+
+  build:
+    strategy:
+      matrix:
+        platform: [ubuntu-latest]
+        node: ['14', '16']
+    name: Tests - Node ${{ matrix.node }} (${{ matrix.platform }})
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node }}
+      - name: install dependencies
+        run: yarn install --frozen-lockfile --ignore-engines
+      - name: run tests
+        run: npm run test
+
+  release:
+    name: do semantic release
+    runs-on: 'ubuntu-latest'
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+      - name: install dependencies
+        run: yarn install --frozen-lockfile --ignore-engines --only=production
+      - name: release
+        run: npx semantic-release
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+          NPM_TOKEN: ${{secrets.NPM_TOKEN}}
