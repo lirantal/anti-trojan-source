@@ -1,5 +1,9 @@
-import { add } from '../src/main.js'
+import { hasTrojanSource } from '../src/main.js'
 
-test('1 + 1 is 2', () => {
-  expect(add(1, 1)).toBe(2)
+test('shouldnt detect dangerous because this text is innocent', () => {
+  expect(hasTrojanSource({ sourceText: 'bla bla bla' })).toBe(false)
+})
+
+test('detects U+061C', () => {
+  expect(hasTrojanSource({ sourceText: 'this string has \u061c in it' })).toBe(true)
 })
