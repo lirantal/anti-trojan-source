@@ -24,7 +24,7 @@
     "test:watch": "NODE_OPTIONS=--experimental-vm-modules npx jest --watch",
     "coverage:view": "open-cli coverage/lcov-report/index.html",
     "semantic-release": "npx semantic-release",
-    "prepare": "husky install",
+    "prepare": "husky install && chmod 755 .husky/*",
     "lint:lockfile": "lockfile-lint --path package-lock.json --validate-https --allowed-hosts npm yarn"
   },
   "author": {
