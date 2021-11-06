@@ -132,7 +132,9 @@
     ]
   },
   "eslintIgnore": [
-    "coverage/**"
+    "coverage/**",
+    "cjs/**",
+    "rollup.config.mjs"
   ],
   "babel": {
     "plugins": [
