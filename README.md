@@ -22,7 +22,9 @@
 
 # About
 
-Detects cases of trojan source attacks that employ unicode bidi attacks to inject malicious code
+Detects cases of [trojan source attacks](https://trojansource.codes) that employ unicode bidi attacks to inject malicious code
+
+**If you came here, high chances you'll be interested in** [eslint-plugin-anti-trojan-source](https://github.com/lirantal/eslint-plugin-anti-trojan-source) also.
 
 ## Why is Trojan Source important?
 
@@ -33,10 +35,12 @@ For more information on the topic, you're welcome to read on the official websit
 ---
 
 Table of Contents
+
 - [Use as a CLI](#use-as-a-cli)
   - [Detect Trojan Source attacks using file globbing](#detect-trojan-source-attacks-using-file-globbing)
   - [Detect Trojan Source attacks using file paths](#detect-trojan-source-attacks-using-file-paths)
   - [Detect Trojan Source attacks by piping input](#detect-trojan-source-attacks-by-piping-input)
+- [Use as an eslint plugin](#use-as-an-eslint-plugin)
 - [Use as a library](#use-as-a-library)
 
 ---
@@ -81,6 +85,10 @@ If you just run `npx anti-trojan-source` and pipe in a file contents, it will de
 ```bash
 cat /src/index.js | npx anti-trojan-source
 ```
+
+# Use as an eslint plugin
+
+Refer to the ESLint Plugin for this CLI and the README on that repository which clearly explains how to set it up: [eslint-plugin-anti-trojan-source](https://github.com/lirantal/eslint-plugin-anti-trojan-source).
 
 # Use as a library
 
