@@ -7,26 +7,31 @@
     "anti-trojan-source": "bin/anti-trojan-source.js"
   },
   "exports": {
-    ".": "./src/main.js"
+    ".": {
+      "require": "./cjs/main.js",
+      "import": "./src/main.js"
+    }
   },
   "engines": {
     "node": ">=14.0.0"
   },
   "type": "module",
   "files": [
+    "cjs",
     "src",
     "bin"
   ],
   "scripts": {
+    "build": "rollup -c",
     "lint": "eslint . && npm run lint:lockfile",
     "lint:fix": "eslint . --fix",
+    "lint:lockfile": "lockfile-lint --path package-lock.json --validate-https --allowed-hosts npm yarn",
     "format": "prettier --config .prettierrc.json --write '**/*.js'",
     "test": "NODE_OPTIONS=--experimental-vm-modules npx jest",
     "test:watch": "NODE_OPTIONS=--experimental-vm-modules npx jest --watch",
     "coverage:view": "open-cli coverage/lcov-report/index.html",
     "semantic-release": "npx semantic-release",
-    "prepare": "husky install && chmod 755 .husky/*",
-    "lint:lockfile": "lockfile-lint --path package-lock.json --validate-https --allowed-hosts npm yarn"
+    "install-git-hooks": "husky install && chmod 755 .husky/*"
   },
   "author": {
     "name": "Liran Tal",
@@ -81,7 +86,8 @@
     "lint-staged": "^11.2.3",
     "lockfile-lint": "^4.6.2",
     "open-cli": "^7.0.1",
-    "prettier": "^2.4.1"
+    "prettier": "^2.4.1",
+    "rollup": "^2.59.0"
   },
   "jest": {
     "testEnvironment": "node",
