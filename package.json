@@ -8,7 +8,7 @@
   },
   "exports": {
     ".": {
-      "require": "./cjs/main.js",
+      "require": "./cjs/main.cjs",
       "import": "./src/main.js"
     }
   },
