@@ -3,6 +3,14 @@ import path from 'path'
 
 const __dirname = new URL('.', import.meta.url).pathname
 
+test('should detect that file really has trojan source -complex1 typescript file', () => {
+  const vulnerableFiles = [path.join(__dirname, '__fixtures__', 'true-trojan-source-complex1.ts')]
+
+  const result = hasTrojanSourceInFiles({ filePaths: vulnerableFiles })
+  expect(result).toHaveLength(1)
+  expect(result[0].file.includes('true-trojan-source-complex1.ts')).toBe(true)
+})
+
 test('should detect that file really has trojan source', () => {
   const vulnerableFiles = [path.join(__dirname, '__fixtures__', 'true-trojan-source.js')]
 
