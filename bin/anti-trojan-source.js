@@ -4,18 +4,17 @@ import meow from 'meow'
 import { globby } from 'globby'
 import { hasTrojanSource, hasTrojanSourceInFiles } from '../src/main.js'
 
-const cli = meow(
-  `
+const cli = meow(`
 	Usage
 	  $ anti-trojan-source <paths> <arguments>
 
 	Options
-    --help                  Show help
-    --filesPattern, -f      Return results as JSON
+	  --help                  Show help
+	  --files, -f             File pattern of files to check.
 
 	Examples
-	  $ anti-trojan-source --filesPattern='**/*.js'
-      $ anti-trojan-source /home/user/project/src/index.js /home/user/project/src/helper.js
+	  $ anti-trojan-source --files='**/*.js'
+	  $ anti-trojan-source /home/user/project/src/index.js /home/user/project/src/helper.js
 `,
   {
     importMeta: import.meta,
