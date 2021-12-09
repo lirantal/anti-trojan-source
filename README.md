@@ -105,7 +105,7 @@ const isDangerous = hasTrojanSource({
 
 # Use as a pre-commit hook
 
-To add this tool to your project as a `[pre-commit](https://pre-commit.com)` hook, try this sample configuration in `.pre-commit-config.yaml`:
+To add this tool to your project as a [`pre-commit`](https://pre-commit.com) hook, try this sample configuration in `.pre-commit-config.yaml`:
 
 ```yaml
 repos:
