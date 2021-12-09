@@ -1,0 +1,6 @@
+---
+- id: anti-trojan-source
+  name: Detect unicode bidi attacks
+  description: Detect trojan source attacks that employ unicode bidi attacks to inject malicious code
+  entry: anti-trojan-source
+  language: node
