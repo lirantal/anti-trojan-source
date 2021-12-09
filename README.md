@@ -103,6 +103,18 @@ const isDangerous = hasTrojanSource({
 
 `hasTrojanSource` returns a boolean.
 
+# Use as a pre-commit hook
+
+To add this tool to your project as a `[pre-commit](https://pre-commit.com)` hook, try this sample configuration in `.pre-commit-config.yaml`:
+
+```yaml
+repos:
+  - repo: https://github.com/lirantal/anti-trojan-source
+    rev: v1.3.3  # choose the release you want
+    hooks:
+      - id: anti-trojan-source
+```
+
 # Contributing
 
 Please consult [CONTRIBUTING](./CONTRIBUTING.md) for guidelines on contributing to this project.
