@@ -24,7 +24,9 @@
 
 Detects cases of [trojan source attacks](https://trojansource.codes) that employ unicode bidi attacks to inject malicious code
 
-**If you came here, high chances you'll be interested in** [eslint-plugin-anti-trojan-source](https://github.com/lirantal/eslint-plugin-anti-trojan-source) also.
+If you're using ESLint:
+* See: [eslint-plugin-anti-trojan-source](https://github.com/lirantal/eslint-plugin-anti-trojan-source) for a purpose-bulit plugin to detect anti-trojan characters.
+* This plugin [inspired work](https://github.com/eslint-community/eslint-plugin-security/pull/95) to create an anti-trojan rule `detect-bidi-characters` in [eslint-plugin-security](https://github.com/eslint-community/eslint-plugin-security) and if you're already using that security plugin then it is advised to turn on that rule.
 
 ## Why is Trojan Source important?
 
