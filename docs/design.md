@@ -26,6 +26,7 @@ The following is the list of Unicode characters that are considered dangerous an
 *   `U+2060`: Word Joiner
 *   `U+2063`: Invisible Separator
 *   `U+00AD`: Soft Hyphen
+*   `U+00A0`: No-Break Space
 *   `U+FE00` to `U+FE0F`: Variation Selectors 1-16
 *   `U+FEFF`: Zero Width No-Break Space
 *   `U+180E`: Mongolian Vowel Separator

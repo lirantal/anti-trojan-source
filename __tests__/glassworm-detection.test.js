@@ -23,3 +23,19 @@ test('detects confusable characters in a fixture file', () => {
   const fileContent = readFileSync('./__tests__/__fixtures__/true-glassworm.js', 'utf-8')
   expect(hasConfusables({ sourceText: fileContent })).toBe(true)
 })
+
+test('detects NO-BREAK SPACE (U+00A0) character', () => {
+  const textWithNBSP = 'if (user\u00A0== "admin") return true'
+  expect(hasConfusables({ sourceText: textWithNBSP })).toBe(true)
+})
+
+test('detects NO-BREAK SPACE in realistic code context', () => {
+  // NO-BREAK SPACE character between words that looks like normal space
+  const codeWithNBSP = 'const\u00A0value = process.env.API_KEY || "default"'
+  expect(hasConfusables({ sourceText: codeWithNBSP })).toBe(true)
+})
+
+test('detects NO-BREAK SPACE in fixture file', () => {
+  const fileContent = readFileSync('./__tests__/__fixtures__/true-nbsp.js', 'utf-8')
+  expect(hasConfusables({ sourceText: fileContent })).toBe(true)
+})
