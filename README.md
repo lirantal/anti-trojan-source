@@ -28,6 +28,15 @@ If you're using ESLint:
 * See: [eslint-plugin-anti-trojan-source](https://github.com/lirantal/eslint-plugin-anti-trojan-source) for a purpose-bulit plugin to detect anti-trojan characters.
 * This plugin [inspired work](https://github.com/eslint-community/eslint-plugin-security/pull/95) to create an anti-trojan rule `detect-bidi-characters` in [eslint-plugin-security](https://github.com/eslint-community/eslint-plugin-security) and if you're already using that security plugin then it is advised to turn on that rule.
 
+## Invisible Characters Support Matrix
+
+The following table lists the various types of invisible character format that may be used in malicious attacks that `anti-trojan-source` is capable of detecting:
+
+| Attack Type          | Supported | Description                                                                                                                                                                 |
+| -------------------- | :-------: | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Trojan Source**    |     ✅    | Using bidirectional Unicode characters to create code that appears different from what the compiler executes. More details at [trojansource.codes](https://trojansource.codes). |
+| **Glassworm**        |     ✅    | Using confusable characters (homoglyphs) to create misleading identifiers or string literals, which can lead to vulnerabilities.                                               |
+
 ## Why is Confusable Unicode Character detection important?
 
 The following publication on the topic of unicode characters attacks, dubbed [Trojan Source: Invisible Vulnerabilities](https://trojansource.codes/trojan-source.pdf), has caused a lot of concern from potential supply chain attacks where adversaries are able to inject malicious code into the source code of a project, slipping by unseen in the code review process. This project expands on that to detect other forms of confusable characters that can be used in similar attacks.
@@ -38,12 +47,18 @@ For more information on the topic, you're welcome to read on the official websit
 
 Table of Contents
 
+- [About](#about)
+  - [Invisible Characters Support Matrix](#invisible-characters-support-matrix)
+  - [Why is Confusable Unicode Character detection important?](#why-is-confusable-unicode-character-detection-important)
 - [Use as a CLI](#use-as-a-cli)
   - [Detect confusable characters using file globbing](#detect-confusable-characters-using-file-globbing)
   - [Detect confusable characters using file paths](#detect-confusable-characters-using-file-paths)
   - [Detect confusable characters by piping input](#detect-confusable-characters-by-piping-input)
 - [Use as an eslint plugin](#use-as-an-eslint-plugin)
 - [Use as a library](#use-as-a-library)
+- [Use as a pre-commit hook](#use-as-a-pre-commit-hook)
+- [Contributing](#contributing)
+- [Author](#author)
 
 ---
 
