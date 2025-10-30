@@ -2,9 +2,10 @@
 import readline from 'readline'
 import meow from 'meow'
 import { globby } from 'globby'
-import { hasTrojanSource, hasTrojanSourceInFiles } from '../src/main.js'
+import { hasConfusables, hasConfusablesInFiles } from '../src/main.js'
 
-const cli = meow(`
+const cli = meow(
+  `
 	Usage
 	  $ anti-trojan-source <paths> <arguments>
 
@@ -51,7 +52,7 @@ async function handleCliFlags({ filesList, flags }) {
     filePaths = await globby(flags.files)
   }
 
-  const results = await hasTrojanSourceInFiles({ filePaths })
+  const results = await hasConfusablesInFiles({ filePaths })
 
   if (results && results.length > 0) {
     console.error('[\u001B[31mx\u001B[39m] Detected cases of trojan source in the following files:')
@@ -70,7 +71,7 @@ async function handleCliFlags({ filesList, flags }) {
 
 function handleStdin() {
   rl.on('line', (sourceText) => {
-    if (hasTrojanSource({ sourceText })) {
+    if (hasConfusables({ sourceText })) {
       console.error(
         '[\u001B[31mx\u001B[39m] Detected cases of trojan source for input passed to STDIN'
       )

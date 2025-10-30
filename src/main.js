@@ -1,11 +1,11 @@
 import { readFileSync, existsSync } from 'fs'
-import { dangerousBidiChars } from '../src/constants.js'
+import { confusableChars } from '../src/constants.js'
 
-function hasTrojanSource({ sourceText }) {
+function hasConfusables({ sourceText }) {
   const sourceTextToSearch = sourceText.toString()
 
-  for (const bidiChar of dangerousBidiChars) {
-    if (sourceTextToSearch.includes(bidiChar)) {
+  for (const confusableChar of confusableChars) {
+    if (sourceTextToSearch.includes(confusableChar)) {
       return true
     }
   }
@@ -13,7 +13,7 @@ function hasTrojanSource({ sourceText }) {
   return false
 }
 
-function hasTrojanSourceInFiles({ filePaths }) {
+function hasConfusablesInFiles({ filePaths }) {
   const filesFoundVulnerable = []
 
   for (const filePath of filePaths) {
@@ -21,7 +21,7 @@ function hasTrojanSourceInFiles({ filePaths }) {
       const file = readFileSync(filePath, 'utf-8')
       const fileText = file.toString()
 
-      if (hasTrojanSource({ sourceText: fileText })) {
+      if (hasConfusables({ sourceText: fileText })) {
         filesFoundVulnerable.push({
           file: filePath
         })
@@ -32,4 +32,4 @@ function hasTrojanSourceInFiles({ filePaths }) {
   return filesFoundVulnerable
 }
 
-export { hasTrojanSource, hasTrojanSourceInFiles, dangerousBidiChars }
+export { hasConfusables, hasConfusablesInFiles, confusableChars }
