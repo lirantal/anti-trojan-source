@@ -17,6 +17,7 @@ export const confusableChars = [
   '\u2060',
   '\u2063',
   '\u00AD',
+  '\u00A0',
   '\uFE00',
   '\uFE01',
   '\uFE02',
