@@ -1,4 +1,4 @@
-export const dangerousBidiChars = [
+export const confusableChars = [
   '\u061C',
   '\u200E',
   '\u200F',
@@ -10,5 +10,29 @@ export const dangerousBidiChars = [
   '\u2066',
   '\u2067',
   '\u2068',
-  '\u2069'
+  '\u2069',
+  '\u200B',
+  '\u200C',
+  '\u200D',
+  '\u2060',
+  '\u2063',
+  '\u00AD',
+  '\uFE00',
+  '\uFE01',
+  '\uFE02',
+  '\uFE03',
+  '\uFE04',
+  '\uFE05',
+  '\uFE06',
+  '\uFE07',
+  '\uFE08',
+  '\uFE09',
+  '\uFE0A',
+  '\uFE0B',
+  '\uFE0C',
+  '\uFE0D',
+  '\uFE0E',
+  '\uFE0F',
+  '\uFEFF',
+  '\u180E'
 ]
