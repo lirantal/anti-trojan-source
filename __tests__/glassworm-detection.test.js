@@ -39,3 +39,31 @@ test('detects NO-BREAK SPACE in fixture file', () => {
   const fileContent = readFileSync('./__tests__/__fixtures__/true-nbsp.js', 'utf-8')
   expect(hasConfusables({ sourceText: fileContent })).toBe(true)
 })
+
+test('the list should include Extended Variation Selectors', () => {
+  // Should have 37 explicit chars + 240 Extended Variation Selectors = 277
+  expect(confusableChars.length).toBe(277)
+})
+
+test('detects Extended Variation Selectors (U+E0100)', () => {
+  // Test first Extended Variation Selector
+  const textWithExtVS = `const value${String.fromCodePoint(0xe0100)} = 123`
+  expect(hasConfusables({ sourceText: textWithExtVS })).toBe(true)
+})
+
+test('detects Extended Variation Selectors (U+E01EF)', () => {
+  // Test last Extended Variation Selector
+  const textWithExtVS = `const value${String.fromCodePoint(0xe01ef)} = 123`
+  expect(hasConfusables({ sourceText: textWithExtVS })).toBe(true)
+})
+
+test('detects Extended Variation Selectors in middle of range', () => {
+  // Test middle of Extended Variation Selectors range
+  const textWithExtVS = `const value${String.fromCodePoint(0xe0150)} = 123`
+  expect(hasConfusables({ sourceText: textWithExtVS })).toBe(true)
+})
+
+test('detects Extended Variation Selectors in fixture file', () => {
+  const fileContent = readFileSync('./__tests__/__fixtures__/true-extended-vs.js', 'utf-8')
+  expect(hasConfusables({ sourceText: fileContent })).toBe(true)
+})
