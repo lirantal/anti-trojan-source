@@ -28,10 +28,11 @@ The following is the list of Unicode characters that are considered dangerous an
 *   `U+00AD`: Soft Hyphen
 *   `U+00A0`: No-Break Space
 *   `U+FE00` to `U+FE0F`: Variation Selectors 1-16
+*   `U+E0100` to `U+E01EF`: Variation Selectors Supplement (240 characters)
 *   `U+FEFF`: Zero Width No-Break Space
 *   `U+180E`: Mongolian Vowel Separator
 
-This list is stored in the `src/constants.js` file.
+This list is stored in the `src/constants.js` file. The Extended Variation Selectors (U+E0100 to U+E01EF) are programmatically generated to avoid hardcoding 240 individual character entries.
 
 ### Detection Functions
 
