@@ -22,20 +22,33 @@
 
 # About
 
-Detects cases of [trojan source attacks](https://trojansource.codes) that employ unicode bidi attacks to inject malicious code, as well as other attacks that use confusable characters (such as glassworm attacks).
+Detects cases of [trojan source attacks](https://trojansource.codes) that employ unicode bidi attacks to inject malicious code, as well as other attacks that use confusable characters (such as glassworm attacks). The tool uses both an explicit list of dangerous Unicode characters and category-based detection to catch invisible characters by their Unicode category (Format and Control categories).
 
 If you're using ESLint:
 * See: [eslint-plugin-anti-trojan-source](https://github.com/lirantal/eslint-plugin-anti-trojan-source) for a purpose-bulit plugin to detect anti-trojan characters.
 * This plugin [inspired work](https://github.com/eslint-community/eslint-plugin-security/pull/95) to create an anti-trojan rule `detect-bidi-characters` in [eslint-plugin-security](https://github.com/eslint-community/eslint-plugin-security) and if you're already using that security plugin then it is advised to turn on that rule.
 
+## Detection Capabilities
+
+`anti-trojan-source` provides comprehensive protection by detecting:
+
+- **277 explicit confusable characters** including bidirectional Unicode, zero-width characters, variation selectors, and more
+- **All Unicode Format characters (Cf category)** - catches invisible formatting characters by category
+- **All Unicode Control characters (Cc category)** - except commonly-used whitespace (TAB, LF, CR)
+- **Extended Variation Selectors** (U+E0100 to U+E01EF) - 240 additional characters
+
+This category-based approach makes the detection **future-proof** against new Unicode characters that may be added to dangerous categories.
+
 ## Invisible Characters Support Matrix
 
 The following table lists the various types of invisible character format that may be used in malicious attacks that `anti-trojan-source` is capable of detecting:
 
-| Attack Type          | Supported | Description                                                                                                                                                                 |
-| -------------------- | :-------: | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Trojan Source**    |     ✅    | Using bidirectional Unicode characters to create code that appears different from what the compiler executes. More details at [trojansource.codes](https://trojansource.codes). |
-| **Glassworm**        |     ✅    | Using confusable characters (homoglyphs) to create misleading identifiers or string literals, which can lead to vulnerabilities.                                               |
+| Attack Type                      | Supported | Description                                                                                                                                                                 |
+| -------------------------------- | :-------: | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Trojan Source**                |     ✅    | Using bidirectional Unicode characters to create code that appears different from what the compiler executes. More details at [trojansource.codes](https://trojansource.codes). |
+| **Glassworm**                    |     ✅    | Using confusable characters (homoglyphs) to create misleading identifiers or string literals, which can lead to vulnerabilities.                                               |
+| **Extended Variation Selectors** |     ✅    | 240 additional variation selectors (U+E0100-U+E01EF) that can alter character appearance invisibly.                                                                           |
+| **Category-Based Detection**     |     ✅    | Detects ALL Unicode Format (Cf) and Control (Cc) characters by category, making detection future-proof.                                                                       |
 
 ## Why is Confusable Unicode Character detection important?
 
@@ -48,14 +61,19 @@ For more information on the topic, you're welcome to read on the official websit
 Table of Contents
 
 - [About](#about)
+  - [Detection Capabilities](#detection-capabilities)
   - [Invisible Characters Support Matrix](#invisible-characters-support-matrix)
   - [Why is Confusable Unicode Character detection important?](#why-is-confusable-unicode-character-detection-important)
 - [Use as a CLI](#use-as-a-cli)
   - [Detect confusable characters using file globbing](#detect-confusable-characters-using-file-globbing)
   - [Detect confusable characters using file paths](#detect-confusable-characters-using-file-paths)
   - [Detect confusable characters by piping input](#detect-confusable-characters-by-piping-input)
+  - [Verbose output mode](#verbose-output-mode)
+  - [JSON output mode](#json-output-mode)
 - [Use as an eslint plugin](#use-as-an-eslint-plugin)
 - [Use as a library](#use-as-a-library)
+  - [Simple boolean check](#simple-boolean-check)
+  - [Detailed findings](#detailed-findings)
 - [Use as a pre-commit hook](#use-as-a-pre-commit-hook)
 - [Contributing](#contributing)
 - [Author](#author)
@@ -103,22 +121,137 @@ If you just run `npx anti-trojan-source` and pipe in a file contents, it will de
 cat /src/index.js | npx anti-trojan-source
 ```
 
+## Verbose output mode
+
+Use the `--verbose` (or `-v`) flag to get detailed information about each detected character, including line and column numbers, character names, and Unicode code points:
+
+```bash
+npx anti-trojan-source --files='src/**/*.js' --verbose
+```
+
+Example output:
+
+```
+[x] Detected cases of trojan source in the following files:
+| 
+ - src/utils.js
+   Line 12:34 - U+200B ZERO WIDTH SPACE [Cf (Format)]
+   Snippet: const value = getUserInput()
+   Line 45:10 - U+202E RIGHT-TO-LEFT OVERRIDE [Cf (Format)]
+   Snippet: if (isAdmin) { // Check permissions
+```
+
+This mode is particularly useful for:
+- **Code reviews**: Quickly identify where invisible characters are located
+- **Debugging**: Understand which specific characters are causing issues
+- **Security audits**: Get detailed reports of all suspicious characters
+
+## JSON output mode
+
+Use the `--json` (or `-j`) flag to get machine-readable JSON output, perfect for CI/CD integration and automated processing:
+
+```bash
+npx anti-trojan-source --files='src/**/*.js' --json
+```
+
+Example output:
+
+```json
+[
+  {
+    "file": "src/utils.js",
+    "findings": [
+      {
+        "line": 12,
+        "column": 34,
+        "codePoint": "U+200B",
+        "name": "ZERO WIDTH SPACE",
+        "category": "Cf (Format)",
+        "snippet": "const value = getUserInput()"
+      }
+    ]
+  }
+]
+```
+
+This mode enables:
+- **CI/CD integration**: Parse results programmatically in your pipeline
+- **Custom reporting**: Build your own reporting tools on top of the detection
+- **Automated workflows**: Trigger specific actions based on findings
+
 # Use as an eslint plugin
 
 Refer to the ESLint Plugin for this CLI and the README on that repository which clearly explains how to set it up: [eslint-plugin-anti-trojan-source](https://github.com/lirantal/eslint-plugin-anti-trojan-source).
 
 # Use as a library
 
-To use it as a library and pass it file contents to detect:
+## Simple boolean check
+
+To use it as a library and pass it file contents to detect (backward compatible):
 
 ```js
 import { hasConfusables } from 'anti-trojan-source'
+
 const isDangerous = hasConfusables({
   sourceText: 'if (accessLevel != "user‮ ⁦// Check if admin⁩ ⁦") {'
 })
+
+console.log(isDangerous) // true or false
 ```
 
-`hasConfusables` returns a boolean.
+`hasConfusables` returns a boolean when called without the `detailed` option.
+
+## Detailed findings
+
+Get comprehensive information about detected characters including their location, names, and categories:
+
+```js
+import { hasConfusables } from 'anti-trojan-source'
+
+const findings = hasConfusables({
+  sourceText: 'const value\u200b = 123', // Contains ZERO WIDTH SPACE
+  detailed: true
+})
+
+console.log(findings)
+// [
+//   {
+//     line: 1,
+//     column: 12,
+//     codePoint: "U+200B",
+//     name: "ZERO WIDTH SPACE",
+//     category: "Cf (Format)",
+//     snippet: "const value = 123"
+//   }
+// ]
+```
+
+Each finding includes:
+- **line**: Line number where the character was found
+- **column**: Column number where the character was found  
+- **codePoint**: Unicode code point (e.g., "U+200B")
+- **name**: Descriptive name of the character
+- **category**: Unicode category or classification
+- **snippet**: Context from the line (up to 80 characters)
+
+You can also check multiple files at once:
+
+```js
+import { hasConfusablesInFiles } from 'anti-trojan-source'
+
+const results = hasConfusablesInFiles({
+  filePaths: ['src/index.js', 'src/utils.js'],
+  detailed: true // Optional: get detailed findings
+})
+
+console.log(results)
+// [
+//   {
+//     file: "src/index.js",
+//     findings: [ /* array of findings */ ]
+//   }
+// ]
+```
 
 # Use as a pre-commit hook
 
