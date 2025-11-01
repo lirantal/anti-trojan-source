@@ -34,19 +34,48 @@ The following is the list of Unicode characters that are considered dangerous an
 
 This list is stored in the `src/constants.js` file. The Extended Variation Selectors (U+E0100 to U+E01EF) are programmatically generated to avoid hardcoding 240 individual character entries.
 
+### Category-Based Detection
+
+In addition to checking against an explicit list of dangerous characters, the tool also employs **category-based detection** to catch Unicode characters by their category:
+
+*   **Format Category (Cf)**: All Unicode Format characters are flagged as suspicious. This includes bidirectional text markers, invisible formatting characters, and other format control characters.
+*   **Control Category (Cc)**: All Unicode Control characters are flagged, **except** for commonly-used whitespace characters:
+    *   `U+0009`: TAB
+    *   `U+000A`: LINE FEED (LF)
+    *   `U+000D`: CARRIAGE RETURN (CR)
+
+This category-based approach is implemented in `src/unicode-categories.js` without requiring any third-party dependencies. It makes the detection future-proof against new Unicode characters that may be added to these categories.
+
 ### Detection Functions
 
 The main detection logic is implemented in the `src/main.js` file, which provides two key functions:
 
-*   `hasConfusables({ sourceText })`: This function takes a string of source code as input and iterates through the list of confusable characters. It returns `true` if any of the confusable characters are found in the string, and `false` otherwise.
+*   `hasConfusables({ sourceText, detailed })`: This function takes a string of source code as input and checks for confusable characters.
+    *   When `detailed` is `false` (default): Returns a boolean (`true` if confusables found, `false` otherwise)
+    *   When `detailed` is `true`: Returns an array of detailed findings, each containing:
+        *   `line`: Line number where the character was found
+        *   `column`: Column number where the character was found
+        *   `codePoint`: Unicode code point (e.g., "U+200B")
+        *   `name`: Descriptive name of the character
+        *   `category`: Unicode category (e.g., "Cf (Format)")
+        *   `snippet`: Context snippet from the line (up to 80 characters)
 
-*   `hasConfusablesInFiles({ filePaths })`: This function takes an array of file paths as input. It reads the content of each file and uses the `hasConfusables` function to check for the presence of confusable characters. It returns an array of file paths that are identified as containing confusable characters.
+*   `hasConfusablesInFiles({ filePaths, detailed })`: This function takes an array of file paths as input and checks each file for confusable characters. Returns an array of results for files containing confusables.
+
+### Enhanced Reporting
+
+The CLI tool supports multiple output modes:
+
+*   **Simple mode** (default): Shows a list of affected files
+*   **Verbose mode** (`--verbose` or `-v`): Shows detailed information about each detected character including line/column numbers, character names, and code points
+*   **JSON mode** (`--json` or `-j`): Outputs results in JSON format for programmatic processing
 
 ## Architecture
 
 The project is structured into a few key components:
 
-*   **`bin/anti-trojan-source.js`**: The executable file for the CLI tool.
-*   **`src/main.js`**: The core logic for detecting confusable characters.
-*   **`src/constants.js`**: The list of confusable Unicode characters.
+*   **`bin/anti-trojan-source.js`**: The executable file for the CLI tool with support for verbose and JSON output modes.
+*   **`src/main.js`**: The core logic for detecting confusable characters with support for detailed findings.
+*   **`src/constants.js`**: The list of confusable Unicode characters (explicit list + programmatically generated ranges).
+*   **`src/unicode-categories.js`**: Lightweight Unicode category detection for Format (Cf) and Control (Cc) categories without external dependencies.
 *   **`__tests__`**: The directory containing the tests for the project.
