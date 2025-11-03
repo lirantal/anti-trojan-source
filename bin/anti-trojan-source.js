@@ -3,6 +3,7 @@ import readline from 'readline'
 import meow from 'meow'
 import { globby } from 'globby'
 import { hasConfusables, hasConfusablesInFiles } from '../src/main.js'
+import { formatMinimal, formatVerbose, formatSuccess, calculateStats } from '../src/formatter.js'
 
 const cli = meow(
   `
@@ -66,49 +67,30 @@ async function handleCliFlags({ filesList, flags }) {
     filePaths = await globby(flags.files)
   }
 
-  const isDetailed = flags.verbose || flags.json
-  const results = await hasConfusablesInFiles({ filePaths, detailed: isDetailed })
+  // Always get detailed results for proper formatting (even in minimal mode)
+  const results = await hasConfusablesInFiles({ filePaths, detailed: true })
 
   if (results && results.length > 0) {
     if (flags.json) {
-      // JSON output mode
+      // JSON output mode (unchanged)
       console.log(JSON.stringify(results, null, 2))
     } else if (flags.verbose) {
-      // Verbose output mode
-      console.error(
-        '[\u001B[31mx\u001B[39m] Detected cases of trojan source in the following files:'
-      )
-      console.error('| ')
-      results.forEach((result) => {
-        console.error(` - ${result.file}`)
-        if (result.findings && result.findings.length > 0) {
-          result.findings.forEach((finding) => {
-            console.error(
-              `   Line ${finding.line}:${finding.column} - ${finding.codePoint} ${finding.name} [${finding.category}]`
-            )
-            console.error(`   Snippet: ${finding.snippet}`)
-          })
-        }
-      })
-      console.error()
+      // Verbose output mode with new formatter
+      const stats = calculateStats(results, filePaths.length)
+      console.error(formatVerbose(results, stats))
     } else {
-      // Simple output mode (backward compatible)
-      console.error(
-        '[\u001B[31mx\u001B[39m] Detected cases of trojan source in the following files:'
-      )
-      console.error('| ')
-      results.forEach((result) => {
-        console.error(` - ${result.file}`)
-      })
-      console.error()
+      // Minimal output mode with new formatter
+      const stats = calculateStats(results, filePaths.length)
+      console.error(formatMinimal(results, stats))
     }
     process.exit(1)
   } else {
     if (flags.json) {
       console.log(JSON.stringify({ success: true, message: 'No case of trojan source detected' }))
     } else {
-      console.log('[\u001B[32m✓\u001B[39m] No case of trojan source detected')
-      console.log()
+      // Success output with new formatter
+      const stats = { totalFiles: filePaths.length }
+      console.log(formatSuccess(stats, flags.verbose))
     }
     process.exit(0)
   }
