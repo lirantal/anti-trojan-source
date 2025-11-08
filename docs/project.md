@@ -25,6 +25,15 @@ The primary purpose of this project is to provide a simple and effective way to 
 *   **Category-Based Detection:** Detects characters by Unicode category (Format and Control) without requiring external dependencies, making detection future-proof.
 *   **No External Dependencies:** Unicode category detection is implemented using lightweight, dependency-free code.
 
+## Compatibility and Migration
+
+For projects that previously used the `hasTrojanSource*` functions, backward-compatible aliases are still exported:
+
+- `hasTrojanSource({...})` (alias of `hasConfusables({...})`)
+- `hasTrojanSourceInFiles({...})` (alias of `hasConfusablesInFiles({...})`)
+
+These aliases are deprecated and will be removed in a future major release. New consumers should use `hasConfusables` and `hasConfusablesInFiles`.
+
 ## How it Works
 
 The tool works in two complementary ways:

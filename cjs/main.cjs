@@ -102,6 +102,16 @@ function hasConfusablesInFiles({ filePaths, detailed = false }) {
   return filesFoundVulnerable
 }
 
+// Backward compatibility aliases (see src/main.js for rationale)
+function hasTrojanSource(options) {
+  return hasConfusables(options);
+}
+function hasTrojanSourceInFiles(options) {
+  return hasConfusablesInFiles(options);
+}
+
 exports.confusableChars = constants.confusableChars;
 exports.hasConfusables = hasConfusables;
 exports.hasConfusablesInFiles = hasConfusablesInFiles;
+exports.hasTrojanSource = hasTrojanSource; // deprecated alias
+exports.hasTrojanSourceInFiles = hasTrojanSourceInFiles; // deprecated alias

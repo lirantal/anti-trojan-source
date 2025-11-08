@@ -79,3 +79,12 @@ The project is structured into a few key components:
 *   **`src/constants.js`**: The list of confusable Unicode characters (explicit list + programmatically generated ranges).
 *   **`src/unicode-categories.js`**: Lightweight Unicode category detection for Format (Cf) and Control (Cc) categories without external dependencies.
 *   **`__tests__`**: The directory containing the tests for the project.
+
+## Compatibility
+
+To preserve backward compatibility for downstream tools (like the ESLint plugin), the library exports deprecated aliases:
+
+- `hasTrojanSource({...})` → alias of `hasConfusables({...})`
+- `hasTrojanSourceInFiles({...})` → alias of `hasConfusablesInFiles({...})`
+
+These aliases exist to avoid breaking existing consumers and will be removed in a future major release. New integrations should use the `hasConfusables*` APIs directly.

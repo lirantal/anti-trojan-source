@@ -102,4 +102,27 @@ function hasConfusablesInFiles({ filePaths, detailed = false }) {
   return filesFoundVulnerable
 }
 
-export { hasConfusables, hasConfusablesInFiles, confusableChars }
+// ---------------------------------------------------------------------------
+// Backward Compatibility Layer
+// ---------------------------------------------------------------------------
+// Previous versions (<1.7.0) exposed hasTrojanSource / hasTrojanSourceInFiles.
+// To remain non-breaking for downstream consumers (eslint-plugin-anti-trojan-source)
+// we provide alias wrappers that delegate to the updated, more feature-rich
+// hasConfusables API.
+// NOTE: These aliases are deprecated and will be removed in a future major release.
+function hasTrojanSource(options) {
+  // Maintain identical signature expectations
+  return hasConfusables(options)
+}
+
+function hasTrojanSourceInFiles(options) {
+  return hasConfusablesInFiles(options)
+}
+
+export {
+  hasConfusables,
+  hasConfusablesInFiles,
+  confusableChars,
+  hasTrojanSource, // deprecated alias
+  hasTrojanSourceInFiles // deprecated alias
+}

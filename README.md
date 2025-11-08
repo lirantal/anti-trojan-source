@@ -111,6 +111,8 @@ If it found any matching confusable unicode characters, it will return with an e
 |
  - /src/index.js
  - /src/helper.js
+Note: For backward compatibility, `hasTrojanSource({...})` is still exported as an alias to `hasConfusables({...})`. It is deprecated and will be removed in a future major version. Prefer `hasConfusables` going forward.
+
 ```
 
 ## Detect confusable characters by piping input
@@ -135,6 +137,7 @@ Example output:
 [x] Detected cases of trojan source in the following files:
 | 
  - src/utils.js
+
    Line 12:34 - U+200B ZERO WIDTH SPACE [Cf (Format)]
    Snippet: const value = getUserInput()
    Line 45:10 - U+202E RIGHT-TO-LEFT OVERRIDE [Cf (Format)]
