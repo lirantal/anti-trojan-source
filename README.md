@@ -265,7 +265,7 @@ To add this tool to your project as a [`pre-commit`](https://pre-commit.com) hoo
 ```yaml
 repos:
   - repo: https://github.com/lirantal/anti-trojan-source
-    rev: v1.3.3  # choose the release you want
+    rev: v1.8.1  # choose the release you want
     hooks:
       - id: anti-trojan-source
 ```
