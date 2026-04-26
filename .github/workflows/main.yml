@@ -53,7 +53,7 @@ jobs:
         with:
           node-version: '24'
       - name: install deps
-        run: npm ci --ignore-engines
+        run: npm ci
       - name: build CJS artifacts
         run: npm run build
       - name: release
