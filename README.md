@@ -16,7 +16,6 @@
   <a href="https://www.npmjs.org/package/anti-trojan-source"><img src="https://badgen.net/npm/dt/anti-trojan-source" alt="downloads"/></a>
   <a href="https://github.com/lirantal/anti-trojan-source/actions?workflow=CI"><img src="https://github.com/lirantal/anti-trojan-source/workflows/CI/badge.svg" alt="build"/></a>
   <a href="https://codecov.io/gh/lirantal/anti-trojan-source"><img src="https://badgen.net/codecov/c/github/lirantal/anti-trojan-source" alt="codecov"/></a>
-  <a href="https://snyk.io/test/github/lirantal/anti-trojan-source"><img src="https://snyk.io/test/github/lirantal/anti-trojan-source/badge.svg" alt="Known Vulnerabilities"/></a>
   <a href="./SECURITY.md"><img src="https://img.shields.io/badge/Security-Responsible%20Disclosure-yellow.svg" alt="Responsible Disclosure Policy" /></a>
 </p>
 
