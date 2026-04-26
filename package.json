@@ -12,6 +12,10 @@
       "import": "./src/main.js"
     }
   },
+  "publishConfig": {
+    "provenance": true,
+    "access": "public"
+  },
   "engines": {
     "node": ">=14.0.0"
   },
