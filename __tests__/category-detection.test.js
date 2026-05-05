@@ -72,6 +72,10 @@ describe('Unicode Category Detection', () => {
     expect(getCharacterName(0x00a0)).toBe('NO-BREAK SPACE')
     expect(getCharacterName(0xfe00)).toBe('VARIATION SELECTOR-1')
     expect(getCharacterName(0xe0100)).toBe('VARIATION SELECTOR-17')
+    expect(getCharacterName(0x034f)).toBe('COMBINING GRAPHEME JOINER')
+    expect(getCharacterName(0x115f)).toBe('HANGUL CHOSEONG FILLER')
+    expect(getCharacterName(0x1160)).toBe('HANGUL JUNGSEONG FILLER')
+    expect(getCharacterName(0x3164)).toBe('HANGUL FILLER')
   })
 
   test('returns descriptive names for control characters', () => {

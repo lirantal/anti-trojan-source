@@ -41,8 +41,8 @@ test('detects NO-BREAK SPACE in fixture file', () => {
 })
 
 test('the list should include Extended Variation Selectors', () => {
-  // Should have 37 explicit chars + 240 Extended Variation Selectors = 277
-  expect(confusableChars.length).toBe(277)
+  // 41 explicit BMP scalars + 240 Extended Variation Selectors = 281
+  expect(confusableChars.length).toBe(281)
 })
 
 test('detects Extended Variation Selectors (U+E0100)', () => {
@@ -66,4 +66,28 @@ test('detects Extended Variation Selectors in middle of range', () => {
 test('detects Extended Variation Selectors in fixture file', () => {
   const fileContent = readFileSync('./__tests__/__fixtures__/true-extended-vs.js', 'utf-8')
   expect(hasConfusables({ sourceText: fileContent })).toBe(true)
+})
+
+test('detects COMBINING GRAPHEME JOINER (U+034F)', () => {
+  expect(hasConfusables({ sourceText: `a${String.fromCodePoint(0x034f)}b` })).toBe(true)
+})
+
+test('detects Hangul filler code points used as invisible smuggling', () => {
+  expect(hasConfusables({ sourceText: `x${String.fromCodePoint(0x115f)}y` })).toBe(true)
+  expect(hasConfusables({ sourceText: `x${String.fromCodePoint(0x1160)}y` })).toBe(true)
+  expect(hasConfusables({ sourceText: `x${String.fromCodePoint(0x3164)}y` })).toBe(true)
+})
+
+test('detailed mode names invisible letter blocklist characters', () => {
+  const findings = hasConfusables({
+    sourceText: `\u034f\u115f\u1160\u3164`,
+    detailed: true
+  })
+  expect(findings.map((f) => f.name)).toEqual([
+    'COMBINING GRAPHEME JOINER',
+    'HANGUL CHOSEONG FILLER',
+    'HANGUL JUNGSEONG FILLER',
+    'HANGUL FILLER'
+  ])
+  findings.forEach((f) => expect(f.category).toBe('Confusable'))
 })

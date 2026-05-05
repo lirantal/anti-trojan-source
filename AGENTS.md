@@ -7,10 +7,11 @@ This document is for human and automated agents working on the repository. It su
 `anti-trojan-source` is a security-focused npm package that scans text (source code, docs, configs) for **confusable and invisible Unicode** that can hide malicious logic or mislead reviewers. It targets:
 
 - **Trojan Source**-style attacks: bidirectional and format controls that change how text orders or displays without obvious visual cues in every context.
-- **Homoglyph / “glassworm”**-style tricks: dangerous characters from an explicit blocklist.
+- **Homoglyph / “glassworm”**-style tricks: dangerous characters from an explicit blocklist (not a full homoglyph / confusables database).
 - **Broad category coverage**: all characters classified as Unicode **Format (Cf)** and **Control (Cc)** (with a small whitelist for TAB, LF, CR), so new code points in those categories are caught without updating a hand-maintained list for every Unicode release.
+- **Strict supplemental blocklist**: a tiny set of **non-Cf/Cc** code points that are commonly invisible in UI fonts but still carry scalar values in source (e.g. certain Hangul fillers and U+034F); see [`README.md` § Scope](README.md#scope).
 
-Out of scope for this library: full natural-language or rendering-stack modeling, locale-specific normalization policies, and non-Unicode obfuscation.
+**What is in or out of scope** (threat model, UTF‑8 layers, homoglyphs, etc.) is maintained in the **[`README.md` Scope section](README.md#scope)** so it stays a single source of truth—update that table when the product boundary changes.
 
 ## Repository layout
 
@@ -52,7 +53,8 @@ Deprecated but still exported for downstream compatibility (prefer migrating cal
 
 ## Changing behavior
 
-- **New explicit characters**: update [`src/constants.js`](src/constants.js) if they are not already covered by Cf/Cc logic and you need them named or prioritized distinctly.
+- **New explicit characters**: update [`src/constants.js`](src/constants.js) if they are not already covered by Cf/Cc logic and you need them named or prioritized distinctly. Reserve this for **high-signal** scalars; document additions in [`README.md` Scope](README.md#scope).
+- **Strict supplemental invisibles** (non-Cf/Cc): keep the list **minimal** — prefer Cf/Cc coverage when Unicode classifies the code point that way.
 - **New Cf/Cc ranges** (Unicode adds blocks): update [`src/unicode-categories.js`](src/unicode-categories.js).
 - **Scanning logic**: only [`src/main.js`](src/main.js) unless you intentionally extend helpers elsewhere.
 

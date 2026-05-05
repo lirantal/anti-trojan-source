@@ -120,7 +120,11 @@ function getCategoryName(char) {
 function getCharacterName(codePoint) {
   const names = new Map([
     [0x00ad, 'SOFT HYPHEN'],
+    [0x034f, 'COMBINING GRAPHEME JOINER'],
     [0x061c, 'ARABIC LETTER MARK'],
+    [0x115f, 'HANGUL CHOSEONG FILLER'],
+    [0x1160, 'HANGUL JUNGSEONG FILLER'],
+    [0x3164, 'HANGUL FILLER'],
     [0x180e, 'MONGOLIAN VOWEL SEPARATOR'],
     [0x200b, 'ZERO WIDTH SPACE'],
     [0x200c, 'ZERO WIDTH NON-JOINER'],
