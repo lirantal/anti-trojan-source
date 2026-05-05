@@ -4,33 +4,39 @@ Object.defineProperty(exports, '__esModule', { value: true });
 
 var fs = require('fs');
 var constants = require('./constants.cjs');
+var extendedBlocklist = require('./extended-blocklist.cjs');
 var unicodeCategories = require('./unicode-categories.cjs');
+
+function isHighSeverityChar(char) {
+  return constants.confusableChars.includes(char) || unicodeCategories.isSuspiciousByCategory(char)
+}
 
 /**
  * Check if text contains confusable characters
  * @param {Object} options - Options object
  * @param {string} options.sourceText - The text to check
  * @param {boolean} options.detailed - Return detailed findings (default: false)
+ * @param {boolean} options.extended - Also match extended blocklist (homoglyphs + extra invisibles); default false
  * @returns {boolean|Array} - Boolean if not detailed, array of findings if detailed
  */
-function hasConfusables({ sourceText, detailed = false }) {
+function hasConfusables({ sourceText, detailed = false, extended = false }) {
   const sourceTextToSearch = sourceText.toString();
 
   if (!detailed) {
-    // Fast path for boolean check - maintain backward compatibility
     for (const confusableChar of constants.confusableChars) {
       if (sourceTextToSearch.includes(confusableChar)) {
         return true
       }
     }
 
-    // Category check: iterate Unicode code points (not UTF-16 code units) so
-    // supplementary-plane Format/Cc characters (e.g. tag letters) are detected.
     for (let i = 0; i < sourceTextToSearch.length; ) {
       const codePoint = sourceTextToSearch.codePointAt(i);
       const char = String.fromCodePoint(codePoint);
       const width = char.length;
       if (unicodeCategories.isSuspiciousByCategory(char)) {
+        return true
+      }
+      if (extended && extendedBlocklist.isExtendedConfusableChar(char)) {
         return true
       }
       i += width;
@@ -39,7 +45,6 @@ function hasConfusables({ sourceText, detailed = false }) {
     return false
   }
 
-  // Detailed mode: return findings with line/column information
   const findings = [];
   const lines = sourceTextToSearch.split('\n');
 
@@ -51,18 +56,32 @@ function hasConfusables({ sourceText, detailed = false }) {
       const char = String.fromCodePoint(codePoint);
       const width = char.length;
 
-      // Check if char is in explicit confusables list or suspicious by category
-      const isInExplicitList = constants.confusableChars.includes(char);
-      const isSuspicious = isInExplicitList || unicodeCategories.isSuspiciousByCategory(char);
+      const isHigh = isHighSeverityChar(char);
+      const isLow = extendedBlocklist.isExtendedConfusableChar(char);
 
-      if (isSuspicious) {
+      if (!extended && isLow && !isHigh) {
+        colIndex += width;
+        continue
+      }
+
+      let severity = null;
+      if (isHigh) {
+        severity = 'high';
+      } else if (extended && isLow) {
+        severity = 'low';
+      }
+
+      if (severity) {
+        const category =
+          severity === 'low' ? 'Extended blocklist' : unicodeCategories.getCategoryName(char);
         findings.push({
           line: lineNumber,
           column: colIndex + 1,
           codePoint: `U+${codePoint.toString(16).toUpperCase().padStart(4, '0')}`,
           name: unicodeCategories.getCharacterName(codePoint),
-          category: unicodeCategories.getCategoryName(char),
-          snippet: line.substring(0, 80) // First 80 chars of the line
+          category,
+          severity,
+          snippet: line.substring(0, 80)
         });
       }
       colIndex += width;
@@ -77,9 +96,10 @@ function hasConfusables({ sourceText, detailed = false }) {
  * @param {Object} options - Options object
  * @param {Array} options.filePaths - Array of file paths to check
  * @param {boolean} options.detailed - Return detailed findings (default: false)
+ * @param {boolean} options.extended - Also match extended blocklist; default false
  * @returns {Array} - Array of results
  */
-function hasConfusablesInFiles({ filePaths, detailed = false }) {
+function hasConfusablesInFiles({ filePaths, detailed = false, extended = false }) {
   const filesFoundVulnerable = [];
 
   for (const filePath of filePaths) {
@@ -88,7 +108,7 @@ function hasConfusablesInFiles({ filePaths, detailed = false }) {
       const fileText = file.toString();
 
       if (detailed) {
-        const findings = hasConfusables({ sourceText: fileText, detailed: true });
+        const findings = hasConfusables({ sourceText: fileText, detailed: true, extended });
         if (findings.length > 0) {
           filesFoundVulnerable.push({
             file: filePath,
@@ -96,7 +116,7 @@ function hasConfusablesInFiles({ filePaths, detailed = false }) {
           });
         }
       } else {
-        if (hasConfusables({ sourceText: fileText })) {
+        if (hasConfusables({ sourceText: fileText, extended })) {
           filesFoundVulnerable.push({
             file: filePath
           });
@@ -111,13 +131,7 @@ function hasConfusablesInFiles({ filePaths, detailed = false }) {
 // ---------------------------------------------------------------------------
 // Backward Compatibility Layer
 // ---------------------------------------------------------------------------
-// Previous versions (<1.7.0) exposed hasTrojanSource / hasTrojanSourceInFiles.
-// To remain non-breaking for downstream consumers (eslint-plugin-anti-trojan-source)
-// we provide alias wrappers that delegate to the updated, more feature-rich
-// hasConfusables API.
-// NOTE: These aliases are deprecated and will be removed in a future major release.
 function hasTrojanSource(options) {
-  // Maintain identical signature expectations
   return hasConfusables(options)
 }
 
@@ -126,6 +140,7 @@ function hasTrojanSourceInFiles(options) {
 }
 
 exports.confusableChars = constants.confusableChars;
+exports.extendedConfusableChars = extendedBlocklist.extendedConfusableChars;
 exports.hasConfusables = hasConfusables;
 exports.hasConfusablesInFiles = hasConfusablesInFiles;
 exports.hasTrojanSource = hasTrojanSource;

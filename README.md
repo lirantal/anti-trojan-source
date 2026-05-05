@@ -54,12 +54,13 @@ This project scans **decoded Unicode text** — the string you get after reading
 | **Strict explicit blocklist** of a few **non-Cf/Cc** scalars that often render invisibly (U+034F, U+115F, U+1160, U+3164) | Explicit list only |
 | Any other **Format (Cf)** or **Control (Cc)** code point | Category tables (Cc minus TAB/LF/CR) |
 | Dangerous confusables on the maintained explicit list (e.g. NO-BREAK SPACE) | Explicit list |
+| **Optional extended blocklist** (CLI `--extended` / `--all`, library `extended: true`) — small set of **ASCII-lookalike** homoglyphs and extra invisible letters | [`src/extended-blocklist.js`](src/extended-blocklist.js); findings use **`severity`: `"low"`** vs default **`"high"`** |
 
 ### Out of scope
 
 | Topic | Reason |
 | ----- | ------ |
-| Full homoglyph / mixed-script confusable-IDN databases (“every Cyrillic lookalike of Latin”) | Requires a large, policy-heavy confusables data set; we only flag **listed** confusables plus **all** Cf/Cc |
+| Full homoglyph / mixed-script confusable-IDN databases (“every Cyrillic lookalike of Latin”) | Default scan still uses a **small** curated set; **`--extended`** adds more lookalikes but not a complete IDN/confusables database |
 | UTF‑8 “sneaky” byte patterns, overlong encodings, non-Unicode steganography | Needs **byte-level** analysis, not scalar-by-scalar Unicode |
 | URL / percent-encoded layers, HTML entities | Decode/normalize elsewhere first |
 | Full rendering, grapheme clusters, locale-specific display rules | Tooling is scalar-based and intentionally simple |
@@ -77,6 +78,7 @@ The following table summarizes attack styles versus what this tool flags:
 | **Extended variation selectors** | ✅ | U+E0100–U+E01EF on explicit list. |
 | **Category-based Cf / Cc** | ✅ | Future-proof for new format/control code points. |
 | **Invisible letters (strict list)** | ✅ | U+034F, Hangul fillers — explicit blocklist only. |
+| **Extended homoglyphs / extra invisibles** | ✅ (opt-in) | Use CLI **`--extended`** or **`--all`**, or `hasConfusables({ extended: true })`. Noisier; see [`src/extended-blocklist.js`](src/extended-blocklist.js). |
 
 ## Why is Confusable Unicode Character detection important?
 
@@ -99,6 +101,7 @@ Table of Contents
   - [Detect confusable characters by piping input](#detect-confusable-characters-by-piping-input)
   - [Verbose output mode](#verbose-output-mode)
   - [JSON output mode](#json-output-mode)
+  - [Extended scan (--extended / --all)](#extended-scan---extended--all)
 - [Use as an eslint plugin](#use-as-an-eslint-plugin)
 - [Use as a library](#use-as-a-library)
   - [Simple boolean check](#simple-boolean-check)
@@ -179,6 +182,17 @@ This mode is particularly useful for:
 - **Debugging**: Understand which specific characters are causing issues
 - **Security audits**: Get detailed reports of all suspicious characters
 
+## Extended scan (`--extended` / `--all`)
+
+By default, the tool only reports **high**-severity matches: all Cf/Cc (except TAB/LF/CR) plus the core explicit list in [`src/constants.js`](src/constants.js). To also flag a **curated** set of ASCII-lookalike homoglyphs and a few extra invisible letters (see [`src/extended-blocklist.js`](src/extended-blocklist.js)), pass **`--extended`** or **`--all`**. Those findings are labeled **`severity`: `"low"`** in JSON and in verbose CLI output (still exit code **1** when any finding is present).
+
+Low-severity hits can appear in legitimate localized text; treat them as **review prompts**, not automatic malice.
+
+```bash
+npx anti-trojan-source --files='src/**/*.js' --extended
+npx anti-trojan-source --files='src/**/*.js' --extended --verbose
+```
+
 ## JSON output mode
 
 Use the `--json` (or `-j`) flag to get machine-readable JSON output, perfect for CI/CD integration and automated processing:
@@ -200,6 +214,7 @@ Example output:
         "codePoint": "U+200B",
         "name": "ZERO WIDTH SPACE",
         "category": "Cf (Format)",
+        "severity": "high",
         "snippet": "const value = getUserInput()"
       }
     ]
@@ -242,9 +257,11 @@ Get comprehensive information about detected characters including their location
 import { hasConfusables } from 'anti-trojan-source'
 
 const findings = hasConfusables({
-  sourceText: 'const value\u200b = 123', // Contains ZERO WIDTH SPACE
+  sourceText: 'const value\u200b = 123', // ZERO WIDTH SPACE
   detailed: true
 })
+
+// Optional: pass extended: true to include homoglyphs / extra invisibles (severity "low").
 
 console.log(findings)
 // [
@@ -254,6 +271,7 @@ console.log(findings)
 //     codePoint: "U+200B",
 //     name: "ZERO WIDTH SPACE",
 //     category: "Cf (Format)",
+//     severity: "high",
 //     snippet: "const value = 123"
 //   }
 // ]
@@ -264,8 +282,11 @@ Each finding includes:
 - **column**: Column number where the character was found  
 - **codePoint**: Unicode code point (e.g., "U+200B")
 - **name**: Descriptive name of the character
-- **category**: Unicode category or classification
+- **category**: Unicode category, `Confusable`, `Variation Selector`, or `Extended blocklist` (when `severity` is `low`)
+- **severity**: `"high"` (default scan: Cf/Cc + core explicit list) or `"low"` (extended blocklist only, when `extended: true`)
 - **snippet**: Context from the line (up to 80 characters)
+
+The package also exports **`extendedConfusableChars`** if you need to introspect the opt-in list.
 
 You can also check multiple files at once:
 
