@@ -4,7 +4,7 @@ import { hasConfusables, hasConfusablesInFiles } from '../src/main.js'
 
 const __dirname = new URL('.', import.meta.url).pathname
 
-const skillPath = path.join(__dirname, '..', 'SKILL.md')
+const skillPath = path.join(__dirname, '__fixtures__', 'SKILL.md')
 
 function isTagOrLanguageFinding(codePointStr) {
   const m = codePointStr.match(/^U\+([0-9A-F]+)$/)
@@ -16,7 +16,7 @@ function isTagOrLanguageFinding(codePointStr) {
 }
 
 describe('SKILL.md fixture (Unicode language tag + tag letters)', () => {
-  test('fixture file exists at repo root', () => {
+  test('fixture file exists under __fixtures__', () => {
     expect(existsSync(skillPath)).toBe(true)
   })
 

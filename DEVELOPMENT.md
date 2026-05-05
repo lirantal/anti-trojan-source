@@ -47,8 +47,7 @@ Global coverage thresholds (Jest): **80%** branches, functions, lines, statement
 
   Prefer matching existing test files for consistency.
 
-- **Fixtures**: place sample files under `__tests__/__fixtures__/`. Load them with `readFileSync` / `hasConfusablesInFiles` and assert on results (see [`__tests__/files-detection.test.js`](__tests__/files-detection.test.js)).
-- **Root samples**: some tests may reference repo-root files (e.g. [`SKILL.md`](SKILL.md)) via `path.join(__dirname, '..', 'filename')` from `__tests__/`.
+- **Fixtures**: place sample files under `__tests__/__fixtures__/`. Load them with `readFileSync` / `hasConfusablesInFiles` and assert on results (see [`__tests__/files-detection.test.js`](__tests__/files-detection.test.js)). The Unicode tag-letter sample lives at [`__tests__/__fixtures__/SKILL.md`](__tests__/__fixtures__/SKILL.md).
 
 ### What to assert
 
