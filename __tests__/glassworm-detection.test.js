@@ -89,5 +89,8 @@ test('detailed mode names invisible letter blocklist characters', () => {
     'HANGUL JUNGSEONG FILLER',
     'HANGUL FILLER'
   ])
-  findings.forEach((f) => expect(f.category).toBe('Confusable'))
+  findings.forEach((f) => {
+    expect(f.category).toBe('Confusable')
+    expect(f.severity).toBe('high')
+  })
 })

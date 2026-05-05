@@ -26,6 +26,8 @@ describe('formatter module', () => {
       expect(stats.filesWithIssues).toBe(2)
       expect(stats.totalIssues).toBe(4)
       expect(stats.criticalCount).toBe(2)
+      expect(stats.highCount).toBe(2)
+      expect(stats.lowCount).toBe(0)
       expect(stats.warningCount).toBe(2)
     })
 
@@ -46,6 +48,8 @@ describe('formatter module', () => {
       expect(stats.filesWithIssues).toBe(1)
       expect(stats.totalIssues).toBe(2)
       expect(stats.criticalCount).toBe(2)
+      expect(stats.highCount).toBe(0)
+      expect(stats.lowCount).toBe(0)
       expect(stats.warningCount).toBe(0)
     })
 
@@ -66,6 +70,8 @@ describe('formatter module', () => {
       expect(stats.filesWithIssues).toBe(1)
       expect(stats.totalIssues).toBe(2)
       expect(stats.criticalCount).toBe(0)
+      expect(stats.highCount).toBe(2)
+      expect(stats.lowCount).toBe(0)
       expect(stats.warningCount).toBe(2)
     })
 
@@ -76,6 +82,8 @@ describe('formatter module', () => {
       expect(stats.filesWithIssues).toBe(0)
       expect(stats.totalIssues).toBe(0)
       expect(stats.criticalCount).toBe(0)
+      expect(stats.highCount).toBe(0)
+      expect(stats.lowCount).toBe(0)
       expect(stats.warningCount).toBe(0)
     })
 
@@ -87,6 +95,24 @@ describe('formatter module', () => {
       expect(stats.totalFiles).toBe(5)
       expect(stats.filesWithIssues).toBe(2)
       expect(stats.totalIssues).toBe(0)
+    })
+
+    test('counts low severity extended findings', () => {
+      const results = [
+        {
+          file: 'a.js',
+          findings: [{ codePoint: 'U+0430', name: 'CYRILLIC SMALL LETTER A', severity: 'low' }]
+        },
+        {
+          file: 'b.js',
+          findings: [{ codePoint: 'U+200B', name: 'ZERO WIDTH SPACE', severity: 'high' }]
+        }
+      ]
+      const stats = calculateStats(results, 2)
+      expect(stats.totalIssues).toBe(2)
+      expect(stats.lowCount).toBe(1)
+      expect(stats.highCount).toBe(1)
+      expect(stats.criticalCount).toBe(0)
     })
   })
 
@@ -107,6 +133,8 @@ describe('formatter module', () => {
         filesWithIssues: 2,
         totalIssues: 2,
         criticalCount: 1,
+        highCount: 1,
+        lowCount: 0,
         warningCount: 1
       }
 
@@ -116,7 +144,6 @@ describe('formatter module', () => {
       expect(output).toContain('Security Issues Found')
       expect(output).toContain('(1 issue) ❌')
       expect(output).toContain('test1.js')
-      expect(output).toContain('(1 issue) ⚠️')
       expect(output).toContain('test2.js')
       expect(output).toContain('Run with --verbose for detailed information')
       expect(output).toContain('2 issues found across 2 files')
@@ -138,6 +165,8 @@ describe('formatter module', () => {
         filesWithIssues: 1,
         totalIssues: 3,
         criticalCount: 3,
+        highCount: 0,
+        lowCount: 0,
         warningCount: 0
       }
 
@@ -159,6 +188,8 @@ describe('formatter module', () => {
         filesWithIssues: 1,
         totalIssues: 1,
         criticalCount: 1,
+        highCount: 0,
+        lowCount: 0,
         warningCount: 0
       }
 
@@ -180,6 +211,8 @@ describe('formatter module', () => {
         filesWithIssues: 1,
         totalIssues: 1,
         criticalCount: 1,
+        highCount: 0,
+        lowCount: 0,
         warningCount: 0
       }
 
@@ -216,6 +249,8 @@ describe('formatter module', () => {
         filesWithIssues: 1,
         totalIssues: 1,
         criticalCount: 1,
+        highCount: 0,
+        lowCount: 0,
         warningCount: 0
       }
 
@@ -234,7 +269,9 @@ describe('formatter module', () => {
       expect(output).toContain('SCAN SUMMARY')
       expect(output).toContain('Files Scanned:      1')
       expect(output).toContain('Total Issues:       1')
-      expect(output).toContain('Critical:           1')
+      expect(output).toContain('Critical (bidi):    1')
+      expect(output).toContain('High:               0')
+      expect(output).toContain('Low (extended):     0')
       expect(output).toContain('Security issues detected')
       expect(output).toContain('[FAILED]')
     })
@@ -260,16 +297,19 @@ describe('formatter module', () => {
         filesWithIssues: 1,
         totalIssues: 1,
         criticalCount: 0,
+        highCount: 1,
+        lowCount: 0,
         warningCount: 1
       }
 
       const output = formatVerbose(results, stats)
 
-      expect(output).toContain('Confusable Characters')
-      expect(output).toContain('[WARNING]')
+      expect(output).toContain('Confusable / Trojan Source Related Characters')
+      expect(output).toContain('[HIGH]')
       expect(output).toContain('U+00A0')
       expect(output).toContain('NO-BREAK SPACE')
-      expect(output).toContain('Warnings:           1')
+      expect(output).toContain('High:               1')
+      expect(output).toContain('Low (extended):     0')
     })
 
     test('formats multiple findings in same file', () => {
@@ -301,6 +341,8 @@ describe('formatter module', () => {
         filesWithIssues: 1,
         totalIssues: 2,
         criticalCount: 2,
+        highCount: 0,
+        lowCount: 0,
         warningCount: 0
       }
 
@@ -345,6 +387,8 @@ describe('formatter module', () => {
         filesWithIssues: 2,
         totalIssues: 2,
         criticalCount: 1,
+        highCount: 1,
+        lowCount: 0,
         warningCount: 1
       }
 
@@ -376,6 +420,8 @@ describe('formatter module', () => {
         filesWithIssues: 1,
         totalIssues: 1,
         criticalCount: 1,
+        highCount: 0,
+        lowCount: 0,
         warningCount: 0
       }
 
@@ -473,6 +519,8 @@ describe('formatter module', () => {
         filesWithIssues: 1,
         totalIssues: 1,
         criticalCount: 1,
+        highCount: 0,
+        lowCount: 0,
         warningCount: 0
       }
 
@@ -513,6 +561,8 @@ describe('formatter module', () => {
         filesWithIssues: 1,
         totalIssues: 1,
         criticalCount: 1,
+        highCount: 0,
+        lowCount: 0,
         warningCount: 0
       }
 

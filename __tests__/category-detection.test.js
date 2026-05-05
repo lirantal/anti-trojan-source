@@ -134,6 +134,7 @@ describe('Enhanced Reporting', () => {
 
     expect(findings[0].line).toBe(2)
     expect(findings[0].codePoint).toBe('U+200B')
+    expect(findings[0].severity).toBe('high')
   })
 
   test('detailed mode includes character name and category', () => {
@@ -142,6 +143,7 @@ describe('Enhanced Reporting', () => {
 
     expect(findings[0].name).toBe('ZERO WIDTH SPACE')
     expect(findings[0].category).toContain('Cf')
+    expect(findings[0].severity).toBe('high')
   })
 
   test('detailed mode handles multiple findings on same line', () => {

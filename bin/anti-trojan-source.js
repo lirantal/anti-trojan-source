@@ -15,11 +15,14 @@ const cli = meow(
 	  --files, -f             File pattern of files to check.
 	  --verbose, -v           Show detailed information about detected characters
 	  --json, -j              Output results in JSON format
+	  --extended              Also flag homoglyphs and extra invisible letters (low severity)
+	  --all                   Same as --extended
 
 	Examples
 	  $ anti-trojan-source --files='**/*.js'
 	  $ anti-trojan-source --files='**/*.js' --verbose
 	  $ anti-trojan-source --files='**/*.js' --json
+	  $ anti-trojan-source --files='**/*.js' --extended
 	  $ anti-trojan-source /home/user/project/src/index.js /home/user/project/src/helper.js
 `,
   {
@@ -38,10 +41,20 @@ const cli = meow(
         type: 'boolean',
         alias: 'j',
         default: false
+      },
+      extended: {
+        type: 'boolean',
+        default: false
+      },
+      all: {
+        type: 'boolean',
+        default: false
       }
     }
   }
 )
+
+const extendedScan = Boolean(cli.flags.extended || cli.flags.all)
 
 const rl = readline.createInterface({
   input: process.stdin
@@ -68,7 +81,11 @@ async function handleCliFlags({ filesList, flags }) {
   }
 
   // Always get detailed results for proper formatting (even in minimal mode)
-  const results = await hasConfusablesInFiles({ filePaths, detailed: true })
+  const results = await hasConfusablesInFiles({
+    filePaths,
+    detailed: true,
+    extended: extendedScan
+  })
 
   if (results && results.length > 0) {
     if (flags.json) {
@@ -108,7 +125,11 @@ function handleStdin() {
       const isDetailed = cli.flags.verbose || cli.flags.json
 
       if (isDetailed) {
-        const findings = hasConfusables({ sourceText: stdinBuffer, detailed: true })
+        const findings = hasConfusables({
+          sourceText: stdinBuffer,
+          detailed: true,
+          extended: extendedScan
+        })
         if (findings.length > 0) {
           if (cli.flags.json) {
             console.log(JSON.stringify({ findings }, null, 2))
@@ -118,7 +139,7 @@ function handleStdin() {
             )
             findings.forEach((finding) => {
               console.error(
-                `Line ${finding.line}:${finding.column} - ${finding.codePoint} ${finding.name} [${finding.category}]`
+                `Line ${finding.line}:${finding.column} - ${finding.codePoint} ${finding.name} [${finding.severity}] [${finding.category}]`
               )
               console.error(`Snippet: ${finding.snippet}`)
             })
@@ -126,7 +147,7 @@ function handleStdin() {
           process.exit(1)
         }
       } else {
-        if (hasConfusables({ sourceText: stdinBuffer })) {
+        if (hasConfusables({ sourceText: stdinBuffer, extended: extendedScan })) {
           console.error(
             '[\u001B[31mx\u001B[39m] Detected cases of trojan source for input passed to STDIN'
           )

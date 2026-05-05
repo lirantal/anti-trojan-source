@@ -47,13 +47,29 @@ function isCritical(codePointStr) {
   return CRITICAL_CHARS.includes(codePoint)
 }
 
+/** @param {Object} finding */
+function isLowSeverityFinding(finding) {
+  return finding.severity === 'low'
+}
+
 /**
- * Get severity level for a finding
- * @param {Object} finding - Finding object with codePoint
- * @returns {string} - 'CRITICAL' or 'WARNING'
+ * Styled labels for a finding: [HIGH] / [LOW] and optional [CRITICAL] for bidi subset.
+ * @param {Object} finding
+ * @returns {string}
  */
-function getSeverity(finding) {
-  return isCritical(finding.codePoint) ? 'CRITICAL' : 'WARNING'
+function formatFindingSeverityLabels(finding) {
+  const low = isLowSeverityFinding(finding)
+  const crit = !low && isCritical(finding.codePoint)
+  const parts = []
+  if (low) {
+    parts.push(colorize('[LOW]', COLORS.YELLOW + COLORS.BOLD))
+  } else {
+    parts.push(colorize('[HIGH]', COLORS.RED + COLORS.BOLD))
+    if (crit) {
+      parts.push(colorize('[CRITICAL]', COLORS.RED + COLORS.BOLD))
+    }
+  }
+  return parts.join(' ')
 }
 
 /**
@@ -74,6 +90,10 @@ function getRiskDescription(codePointStr) {
     0x200b: 'Invisible character that may hide logic',
     0x00a0: 'May hide malicious logic or confuse developers',
     0x00ad: 'Invisible hyphenation that may hide logic'
+  }
+
+  if (codePoint === 0x0669) {
+    return 'Digit lookalike; may confuse parsers or reviewers'
   }
 
   return riskMap[codePoint] || 'May be used to hide or confuse code logic'
@@ -133,26 +153,34 @@ function boxFooter(width = 50) {
 function calculateStats(results, totalFiles) {
   let totalIssues = 0
   let criticalCount = 0
-  let warningCount = 0
+  let highCount = 0
+  let lowCount = 0
 
   results.forEach((result) => {
     if (result.findings && result.findings.length > 0) {
       result.findings.forEach((finding) => {
         totalIssues++
-        if (isCritical(finding.codePoint)) {
+        if (isLowSeverityFinding(finding)) {
+          lowCount++
+        } else if (isCritical(finding.codePoint)) {
           criticalCount++
         } else {
-          warningCount++
+          highCount++
         }
       })
     }
   })
+
+  // Backward compatible: "warnings" = non-critical high severities (excludes low)
+  const warningCount = highCount
 
   return {
     totalFiles,
     filesWithIssues: results.length,
     totalIssues,
     criticalCount,
+    highCount,
+    lowCount,
     warningCount
   }
 }
@@ -190,8 +218,10 @@ export function formatMinimal(results, stats) {
   // List files with issue counts
   results.forEach((result) => {
     const issueCount = result.findings ? result.findings.length : 1
-    const hasCritical = result.findings && result.findings.some((f) => isCritical(f.codePoint))
-    const icon = hasCritical ? '❌' : '⚠️'
+    const findings = result.findings || []
+    const hasCritical = findings.some((f) => isCritical(f.codePoint))
+    const hasHigh = findings.some((f) => !isLowSeverityFinding(f))
+    const icon = hasCritical || hasHigh ? '❌' : '⚠️'
     const issueText = `(${issueCount} issue${issueCount !== 1 ? 's' : ''})`
     const filePath = colorize(result.file, COLORS.CYAN)
 
@@ -232,16 +262,24 @@ export function formatVerbose(results, stats) {
     output.push(`${BOX.TOP_LEFT}${BOX.HORIZONTAL} File: ${filePath}`)
     output.push(BOX.VERTICAL)
 
-    // Determine severity for this file
     const hasCritical = result.findings.some((f) => isCritical(f.codePoint))
-    const severityLabel = hasCritical
-      ? colorize('[CRITICAL]', COLORS.RED + COLORS.BOLD)
-      : colorize('[WARNING]', COLORS.YELLOW + COLORS.BOLD)
-    const severityText = hasCritical
-      ? 'Bidirectional Text Attack Detected'
-      : 'Confusable Characters'
+    const hasHigh = result.findings.some((f) => !isLowSeverityFinding(f))
+    const onlyLow = result.findings.every((f) => isLowSeverityFinding(f))
 
-    output.push(`${BOX.VERTICAL}  ${severityLabel} ${severityText}`)
+    let fileBannerLabel
+    let fileBannerText
+    if (hasCritical) {
+      fileBannerLabel = colorize('[CRITICAL]', COLORS.RED + COLORS.BOLD)
+      fileBannerText = 'Bidirectional Text Attack Detected'
+    } else if (hasHigh) {
+      fileBannerLabel = colorize('[HIGH]', COLORS.RED + COLORS.BOLD)
+      fileBannerText = 'Confusable / Trojan Source Related Characters'
+    } else {
+      fileBannerLabel = colorize('[LOW]', COLORS.YELLOW + COLORS.BOLD)
+      fileBannerText = onlyLow ? 'Extended Blocklist (Homoglyphs / Invisibles)' : 'Issues Detected'
+    }
+
+    output.push(`${BOX.VERTICAL}  ${fileBannerLabel} ${fileBannerText}`)
     output.push(`${BOX.VERTICAL}`)
 
     // Process each finding
@@ -250,7 +288,9 @@ export function formatVerbose(results, stats) {
       const codePoint = colorize(finding.codePoint, COLORS.BOLD)
       const name = finding.name
 
-      output.push(`${BOX.VERTICAL}  ${lineCol}  >  ${codePoint}  ${name}`)
+      output.push(
+        `${BOX.VERTICAL}  ${lineCol}  >  ${formatFindingSeverityLabels(finding)}  ${codePoint}  ${name}`
+      )
 
       // Snippet box
       output.push(`${BOX.VERTICAL}  ${BOX.T_RIGHT}${BOX.HORIZONTAL.repeat(45)}`)
@@ -264,7 +304,10 @@ export function formatVerbose(results, stats) {
 
       // Additional details
       output.push(`${BOX.VERTICAL}  ${colorize('Category:', COLORS.GRAY)} ${finding.category}`)
-      const risk = getRiskDescription(finding.codePoint)
+      const risk =
+        finding.severity === 'low'
+          ? 'Extended blocklist: ASCII lookalike or extra invisible; noisier signal—verify intent'
+          : getRiskDescription(finding.codePoint)
       output.push(`${BOX.VERTICAL}  ${colorize('Risk:', COLORS.GRAY)} ${risk}`)
 
       // Add spacing between findings (but not after the last one)
@@ -298,8 +341,9 @@ export function formatVerbose(results, stats) {
   output.push(boxLine(`Files Scanned:      ${stats.totalFiles}`, 50))
   output.push(boxLine(`Files with Issues:  ${stats.filesWithIssues}`, 50))
   output.push(boxLine(`Total Issues:       ${stats.totalIssues}`, 50))
-  output.push(boxLine(`Critical:           ${stats.criticalCount}`, 50))
-  output.push(boxLine(`Warnings:           ${stats.warningCount}`, 50))
+  output.push(boxLine(`Critical (bidi):    ${stats.criticalCount ?? 0}`, 50))
+  output.push(boxLine(`High:               ${stats.highCount ?? 0}`, 50))
+  output.push(boxLine(`Low (extended):     ${stats.lowCount ?? 0}`, 50))
   output.push(boxFooter(50))
   output.push('')
 

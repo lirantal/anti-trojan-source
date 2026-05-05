@@ -47,13 +47,13 @@ Global coverage thresholds (Jest): **80%** branches, functions, lines, statement
 
   Prefer matching existing test files for consistency.
 
-- **Fixtures**: place sample files under `__tests__/__fixtures__/`. Load them with `readFileSync` / `hasConfusablesInFiles` and assert on results (see [`__tests__/files-detection.test.js`](__tests__/files-detection.test.js)). The Unicode tag-letter sample lives at [`__tests__/__fixtures__/SKILL.md`](__tests__/__fixtures__/SKILL.md).
+- **Fixtures**: place sample files under `__tests__/__fixtures__/`. Load them with `readFileSync` / `hasConfusablesInFiles` and assert on results (see [`__tests__/files-detection.test.js`](__tests__/files-detection.test.js)). The Unicode tag-letter sample lives at [`__tests__/__fixtures__/SKILL.md`](__tests__/__fixtures__/SKILL.md). For **`extended: true`**, use fixtures such as [`true-extended-homoglyph.js`](__tests__/__fixtures__/true-extended-homoglyph.js), [`true-extended-invisible.js`](__tests__/__fixtures__/true-extended-invisible.js) (literal U+2800 in source), and [`false-extended-cyrillic-comment.js`](__tests__/__fixtures__/false-extended-cyrillic-comment.js).
 
 ### What to assert
 
 - Boolean API: `hasConfusables({ sourceText })` true/false.
 - File API: `hasConfusablesInFiles({ filePaths, detailed })` length and shape.
-- Detailed findings: `line`, `column`, `codePoint`, `name`, `category`, `snippet` as appropriate.
+- Detailed findings: `line`, `column`, `codePoint`, `name`, `category`, **`severity`**, `snippet` as appropriate.
 
 ## Linting and style
 

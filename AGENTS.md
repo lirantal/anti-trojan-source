@@ -19,6 +19,7 @@ This document is for human and automated agents working on the repository. It su
 |------|------|
 | [`src/main.js`](src/main.js) | Core API: `hasConfusables`, `hasConfusablesInFiles`; composes explicit list + category checks. |
 | [`src/constants.js`](src/constants.js) | Explicit `confusableChars` (BMP bidi/zero-width/etc. + generated extended variation selectors U+10000 block). |
+| [`src/extended-blocklist.js`](src/extended-blocklist.js) | Opt-in homoglyphs / extra invisibles; only scanned when `extended: true` (CLI `--extended` / `--all`). |
 | [`src/unicode-categories.js`](src/unicode-categories.js) | Cf/Cc range tables, `isSuspiciousByCategory`, naming helpers for reporting. |
 | [`src/formatter.js`](src/formatter.js) | CLI output formatting (minimal, verbose, JSON-oriented messaging). |
 | [`bin/anti-trojan-source.js`](bin/anti-trojan-source.js) | CLI entry: globbing, stdin, delegates to library with `detailed: true` for reporting. |
@@ -28,10 +29,12 @@ Human-oriented background: [`docs/project.md`](docs/project.md), [`docs/design.m
 
 ## Public API (library)
 
-- **`hasConfusables({ sourceText, detailed })`**
+- **`hasConfusables({ sourceText, detailed, extended })`**
   - `detailed` false (default): returns `boolean`.
-  - `detailed` true: returns an array of findings: `line`, `column`, `codePoint`, `name`, `category`, `snippet`.
-- **`hasConfusablesInFiles({ filePaths, detailed })`**: returns an array of `{ file, findings? }` for files that contain confusables (findings present when `detailed` is true).
+  - `detailed` true: returns an array of findings: `line`, `column`, `codePoint`, `name`, `category`, **`severity`** (`high` | `low`), `snippet`.
+  - `extended` false (default): only core scan (Cf/Cc + `confusableChars`). `extended` true: also match [`extended-blocklist.js`](src/extended-blocklist.js) (low severity).
+- **`hasConfusablesInFiles({ filePaths, detailed, extended })`**: returns an array of `{ file, findings? }` for files that contain confusables (findings present when `detailed` is true).
+- Also exported: **`extendedConfusableChars`** (opt-in list array).
 
 Deprecated but still exported for downstream compatibility (prefer migrating callers):
 
@@ -41,12 +44,13 @@ Deprecated but still exported for downstream compatibility (prefer migrating cal
 ## CLI
 
 - Paths or `--files` / `-f` glob patterns.
-- `--verbose` / `-v`: per-finding detail.
-- `--json` / `-j`: machine-readable output.
+- `--verbose` / `-v`: per-finding detail (includes **high** / **low** and bidi **critical** labels).
+- `--json` / `-j`: machine-readable output (each finding includes `severity`).
+- `--extended` / `--all`: enable extended blocklist (low severity); see [README](README.md#extended-scan---extended--all).
 
 ## Detection model (invariants)
 
-1. **Two layers**: (a) substring / membership against `confusableChars`; (b) per–**code point** category check via `isSuspiciousByCategory` (Cf, or Cc except TAB/LF/CR).
+1. **Core layers** (always): (a) substring / membership against `confusableChars`; (b) per–**code point** category check via `isSuspiciousByCategory` (Cf, or Cc except TAB/LF/CR). **Optional third layer**: `extended: true` adds `extendedConfusableChars`; hits are **`severity: low`** and **`category: Extended blocklist`** unless already caught as core (**high** wins).
 2. **Unicode code points, not UTF-16 code units**: JavaScript strings are UTF-16. Supplementary characters (e.g. U+E0001, U+E0020–U+E007F tag letters, U+E0100+ variation selectors) occupy two code units. Scans **must** advance with `codePointAt` and `String.fromCodePoint` (or equivalent) so astral characters are evaluated as a single scalar value. Never rely on `charAt(i)` alone for security-sensitive classification.
 3. **Column numbers**: In detailed mode, `column` is **1-based** and is the **starting UTF-16 index** of the code point within that line plus one (aligned with common editor column semantics for JavaScript strings).
 4. **Snippets**: Findings use a prefix of the line (`substring(0, 80)`) for context; this is UTF-16-based length, not grapheme count.
@@ -54,7 +58,8 @@ Deprecated but still exported for downstream compatibility (prefer migrating cal
 ## Changing behavior
 
 - **New explicit characters**: update [`src/constants.js`](src/constants.js) if they are not already covered by Cf/Cc logic and you need them named or prioritized distinctly. Reserve this for **high-signal** scalars; document additions in [`README.md` Scope](README.md#scope).
-- **Strict supplemental invisibles** (non-Cf/Cc): keep the list **minimal** — prefer Cf/Cc coverage when Unicode classifies the code point that way.
+- **Extended blocklist** (opt-in, low severity): update [`src/extended-blocklist.js`](src/extended-blocklist.js) only for **ASCII-lookalike** or **high-signal invisible** scalars; update [`README.md` Scope](README.md#scope) when the boundary changes.
+- **Strict supplemental invisibles** on the core list (non-Cf/Cc): keep **minimal** — prefer Cf/Cc when Unicode classifies the code point that way.
 - **New Cf/Cc ranges** (Unicode adds blocks): update [`src/unicode-categories.js`](src/unicode-categories.js).
 - **Scanning logic**: only [`src/main.js`](src/main.js) unless you intentionally extend helpers elsewhere.
 
