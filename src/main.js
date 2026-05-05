@@ -24,12 +24,16 @@ function hasConfusables({ sourceText, detailed = false }) {
       }
     }
 
-    // Also check by category
-    for (let i = 0; i < sourceTextToSearch.length; i++) {
-      const char = sourceTextToSearch.charAt(i)
+    // Category check: iterate Unicode code points (not UTF-16 code units) so
+    // supplementary-plane Format/Cc characters (e.g. tag letters) are detected.
+    for (let i = 0; i < sourceTextToSearch.length; ) {
+      const codePoint = sourceTextToSearch.codePointAt(i)
+      const char = String.fromCodePoint(codePoint)
+      const width = char.length
       if (isSuspiciousByCategory(char)) {
         return true
       }
+      i += width
     }
 
     return false
@@ -42,9 +46,10 @@ function hasConfusables({ sourceText, detailed = false }) {
   lines.forEach((line, lineIndex) => {
     const lineNumber = lineIndex + 1
 
-    for (let colIndex = 0; colIndex < line.length; colIndex++) {
-      const char = line.charAt(colIndex)
-      const codePoint = char.codePointAt(0)
+    for (let colIndex = 0; colIndex < line.length; ) {
+      const codePoint = line.codePointAt(colIndex)
+      const char = String.fromCodePoint(codePoint)
+      const width = char.length
 
       // Check if char is in explicit confusables list or suspicious by category
       const isInExplicitList = confusableChars.includes(char)
@@ -60,6 +65,7 @@ function hasConfusables({ sourceText, detailed = false }) {
           snippet: line.substring(0, 80) // First 80 chars of the line
         })
       }
+      colIndex += width
     }
   })
 
