@@ -36,7 +36,13 @@ const explicitConfusableChars = [
   '\uFE0E', // VARIATION SELECTOR-15
   '\uFE0F', // VARIATION SELECTOR-16
   '\uFEFF', // ZERO WIDTH NO-BREAK SPACE (BOM)
-  '\u180E' // MONGOLIAN VOWEL SEPARATOR
+  '\u180E', // MONGOLIAN VOWEL SEPARATOR
+  // Non-Cf/Cc characters that are often invisible in UI fonts; used for the same
+  // “hidden payload” goals as zero-width / tag smuggling (strict explicit list only).
+  '\u034F', // COMBINING GRAPHEME JOINER (Mn)
+  '\u115F', // HANGUL CHOSEONG FILLER (Lo)
+  '\u1160', // HANGUL JUNGSEONG FILLER (Lo)
+  '\u3164' // HANGUL FILLER (Lo)
 ]
 
 // Generate Extended Variation Selectors (U+E0100 to U+E01EF)

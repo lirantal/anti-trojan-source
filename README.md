@@ -33,23 +33,50 @@ If you're using ESLint:
 
 `anti-trojan-source` provides comprehensive protection by detecting:
 
-- **277 explicit confusable characters** including bidirectional Unicode, zero-width characters, variation selectors, and more
-- **All Unicode Format characters (Cf category)** - catches invisible formatting characters by category
-- **All Unicode Control characters (Cc category)** - except commonly-used whitespace (TAB, LF, CR)
-- **Extended Variation Selectors** (U+E0100 to U+E01EF) - 240 additional characters
+- **281 explicit confusable scalars** — bidirectional controls, zero-width characters, BMP variation selectors, a small set of non-Cf/Cc invisibles (Hangul fillers, U+034F), plus **240** supplementary variation selectors (U+E0100–U+E01EF)
+- **All Unicode Format characters (Cf category)** — invisible formatting characters by category (including Unicode **tag letters** used for ASCII smuggling / hidden payloads)
+- **All Unicode Control characters (Cc category)** — except commonly-used whitespace (TAB, LF, CR)
 
-This category-based approach makes the detection **future-proof** against new Unicode characters that may be added to dangerous categories.
+Category-based Cf/Cc detection keeps the tool **future-proof** as Unicode adds new format or control code points. The explicit list covers characters that matter for security but are **not** Cf/Cc (e.g. BMP variation selectors are **Mn**, not Cf).
+
+## Scope
+
+This project scans **decoded Unicode text** — the string you get after reading a UTF‑8 (or other Unicode encoding) file the usual way. It does **not** inspect raw bytes, URLs, or tokenizer-specific behavior.
+
+### In scope
+
+| Topic | Detection approach |
+| ----- | ------------------ |
+| Trojan Source (bidi embeddings, overrides, isolates, PDF, etc.) | Cf ranges + explicit list |
+| Zero-width / word joiner / BOM / soft hyphen (where Cf or listed) | Cf + explicit list |
+| **Unicode Tags block** (U+E0001, U+E0020–U+E007F) — invisible ASCII-shaped payloads ([background](https://embracethered.com/blog/posts/2024/hiding-and-finding-text-with-unicode-tags/)) | Cf |
+| Variation selectors (BMP U+FE00–U+FE0F + supplement U+E0100–U+E01EF) | Explicit list (**Mn** in Unicode, not Cf) |
+| **Strict explicit blocklist** of a few **non-Cf/Cc** scalars that often render invisibly (U+034F, U+115F, U+1160, U+3164) | Explicit list only |
+| Any other **Format (Cf)** or **Control (Cc)** code point | Category tables (Cc minus TAB/LF/CR) |
+| Dangerous confusables on the maintained explicit list (e.g. NO-BREAK SPACE) | Explicit list |
+
+### Out of scope
+
+| Topic | Reason |
+| ----- | ------ |
+| Full homoglyph / mixed-script confusable-IDN databases (“every Cyrillic lookalike of Latin”) | Requires a large, policy-heavy confusables data set; we only flag **listed** confusables plus **all** Cf/Cc |
+| UTF‑8 “sneaky” byte patterns, overlong encodings, non-Unicode steganography | Needs **byte-level** analysis, not scalar-by-scalar Unicode |
+| URL / percent-encoded layers, HTML entities | Decode/normalize elsewhere first |
+| Full rendering, grapheme clusters, locale-specific display rules | Tooling is scalar-based and intentionally simple |
+| Whether a finding is malicious | High-signal alert for human review |
 
 ## Invisible Characters Support Matrix
 
-The following table lists the various types of invisible character format that may be used in malicious attacks that `anti-trojan-source` is capable of detecting:
+The following table summarizes attack styles versus what this tool flags:
 
-| Attack Type                      | Supported | Description                                                                                                                                                                 |
-| -------------------------------- | :-------: | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Trojan Source**                |     ✅    | Using bidirectional Unicode characters to create code that appears different from what the compiler executes. More details at [trojansource.codes](https://trojansource.codes). |
-| **Glassworm**                    |     ✅    | Using confusable characters (homoglyphs) to create misleading identifiers or string literals, which can lead to vulnerabilities.                                               |
-| **Extended Variation Selectors** |     ✅    | 240 additional variation selectors (U+E0100-U+E01EF) that can alter character appearance invisibly.                                                                           |
-| **Category-Based Detection**     |     ✅    | Detects ALL Unicode Format (Cf) and Control (Cc) characters by category, making detection future-proof.                                                                       |
+| Attack Type | Supported | Notes |
+| ----------- | :-------: | ----- |
+| **Trojan Source** | ✅ | Bidi / format controls per [trojansource.codes](https://trojansource.codes). |
+| **Glassworm / confusable identifiers** | ✅ (partial) | Flags **explicit** confusables and **all** Cf/Cc — not a complete homoglyph alphabet. |
+| **Unicode tag / “ASCII smuggling”** | ✅ | Tag letters are **Cf**; see [Embrace The Red](https://embracethered.com/blog/posts/2024/hiding-and-finding-text-with-unicode-tags/). |
+| **Extended variation selectors** | ✅ | U+E0100–U+E01EF on explicit list. |
+| **Category-based Cf / Cc** | ✅ | Future-proof for new format/control code points. |
+| **Invisible letters (strict list)** | ✅ | U+034F, Hangul fillers — explicit blocklist only. |
 
 ## Why is Confusable Unicode Character detection important?
 
@@ -63,6 +90,7 @@ Table of Contents
 
 - [About](#about)
   - [Detection Capabilities](#detection-capabilities)
+  - [Scope](#scope)
   - [Invisible Characters Support Matrix](#invisible-characters-support-matrix)
   - [Why is Confusable Unicode Character detection important?](#why-is-confusable-unicode-character-detection-important)
 - [Use as a CLI](#use-as-a-cli)
@@ -76,6 +104,7 @@ Table of Contents
   - [Simple boolean check](#simple-boolean-check)
   - [Detailed findings](#detailed-findings)
 - [Use as a pre-commit hook](#use-as-a-pre-commit-hook)
+- [References](#references)
 - [Contributing](#contributing)
 - [Author](#author)
 
@@ -268,6 +297,12 @@ repos:
     hooks:
       - id: anti-trojan-source
 ```
+
+# References
+
+- [Hiding and finding text with Unicode Tags](https://embracethered.com/blog/posts/2024/hiding-and-finding-text-with-unicode-tags/) — Unicode tag letters, LLM / review bypass, and links to specs (Embrace The Red).
+- [ASCII Smuggler](https://embracethered.com/blog/ascii-smuggler.html) — encode/decode tool for tags, variant selectors, and related invisible patterns (Embrace The Red).
+- [Trojan Source](https://trojansource.codes/) — original bidi / trojan source research and paper.
 
 # Contributing
 
