@@ -91,7 +91,8 @@
     "lockfile-lint": "^4.6.2",
     "open-cli": "^7.0.1",
     "prettier": "^2.4.1",
-    "rollup": "^2.59.0"
+    "rollup": "^2.59.0",
+    "semantic-release": "^19.0.0"
   },
   "jest": {
     "testEnvironment": "node",
