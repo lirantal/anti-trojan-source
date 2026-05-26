@@ -32,10 +32,14 @@ jobs:
         run: npm ci --ignore-engines
       - name: run tests
         run: npm run test
-      - name: run code coverage
-        run: npx codecov
+      - name: coverage
+        uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
+        with:
+          fail_ci_if_error: true
+          verbose: false
+          token: ${{ secrets.CODECOV_TOKEN }}
         env:
-          CODECOV_TOKEN: ${{secrets.CODECOV_TOKEN}}
+          CI: true
 
   release:
     name: do semantic release
