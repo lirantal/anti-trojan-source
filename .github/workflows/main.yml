@@ -2,8 +2,12 @@ name: CI
 
 on: [push, pull_request]
 
+permissions: {}
+
 jobs:
   lint:
+    permissions:
+      contents: read
     name: Lint
     runs-on: 'ubuntu-latest'
     steps:
@@ -17,6 +21,8 @@ jobs:
         run: npm run lint
 
   build:
+    permissions:
+      contents: read
     strategy:
       matrix:
         platform: [ubuntu-latest]
