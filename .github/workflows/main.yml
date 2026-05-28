@@ -26,7 +26,7 @@ jobs:
     strategy:
       matrix:
         platform: [ubuntu-latest]
-        node: ['14', '16']
+        node: ['24']
     name: Tests - Node ${{ matrix.node }} (${{ matrix.platform }})
     runs-on: ${{ matrix.platform }}
     steps:
@@ -37,7 +37,7 @@ jobs:
       - name: install dependencies
         run: npm ci --ignore-engines
       - name: run tests
-        run: npm --ignore-scripts=false run test
+        run: npm run test
       - name: coverage
         uses: codecov/codecov-action@e79a6962e0d4c0c17b229090214935d2e33f8354 # v6.0.1
         with:
