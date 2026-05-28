@@ -74,12 +74,12 @@
     "@babel/plugin-syntax-top-level-await": "^7.14.5",
     "@commitlint/cli": "^13.2.1",
     "@commitlint/config-conventional": "^13.2.0",
-    "@semantic-release/changelog": "^6.0.0",
-    "@semantic-release/commit-analyzer": "^9.0.1",
-    "@semantic-release/git": "^10.0.0",
-    "@semantic-release/github": "^8.0.1",
-    "@semantic-release/npm": "^8.0.2",
-    "@semantic-release/release-notes-generator": "^10.0.2",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/commit-analyzer": "^13.0.1",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^12.0.6",
+    "@semantic-release/npm": "^13.1.5",
+    "@semantic-release/release-notes-generator": "^14.1.0",
     "eslint": "^8.0.1",
     "eslint-plugin-jest": "^25.2.2",
     "eslint-plugin-node": "^11.1.0",
@@ -92,7 +92,7 @@
     "open-cli": "^7.0.1",
     "prettier": "^2.4.1",
     "rollup": "^2.59.0",
-    "semantic-release": "^19.0.0"
+    "semantic-release": "^25.0.3"
   },
   "jest": {
     "testEnvironment": "node",
