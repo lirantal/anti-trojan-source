@@ -41,8 +41,8 @@ test('detects NO-BREAK SPACE in fixture file', () => {
 })
 
 test('the list should include Extended Variation Selectors', () => {
-  // 41 explicit BMP scalars + 240 Extended Variation Selectors = 281
-  expect(confusableChars.length).toBe(281)
+  // 45 explicit BMP scalars + 240 Extended Variation Selectors = 285
+  expect(confusableChars.length).toBe(285)
 })
 
 test('detects Extended Variation Selectors (U+E0100)', () => {

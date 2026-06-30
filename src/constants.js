@@ -42,7 +42,13 @@ const explicitConfusableChars = [
   '\u034F', // COMBINING GRAPHEME JOINER (Mn)
   '\u115F', // HANGUL CHOSEONG FILLER (Lo)
   '\u1160', // HANGUL JUNGSEONG FILLER (Lo)
-  '\u3164' // HANGUL FILLER (Lo)
+  '\u3164', // HANGUL FILLER (Lo)
+  // Mongolian free variation selectors (Mn): variation selectors like the FE00-FE0F
+  // and E0100-E01EF entries above. Default_Ignorable_Code_Point, so invisible by default.
+  '\u180B', // MONGOLIAN FREE VARIATION SELECTOR ONE
+  '\u180C', // MONGOLIAN FREE VARIATION SELECTOR TWO
+  '\u180D', // MONGOLIAN FREE VARIATION SELECTOR THREE
+  '\u180F' // MONGOLIAN FREE VARIATION SELECTOR FOUR
 ]
 
 // Generate Extended Variation Selectors (U+E0100 to U+E01EF)
