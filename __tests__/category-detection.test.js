@@ -75,6 +75,10 @@ describe('Unicode Category Detection', () => {
     expect(getCharacterName(0x034f)).toBe('COMBINING GRAPHEME JOINER')
     expect(getCharacterName(0x115f)).toBe('HANGUL CHOSEONG FILLER')
     expect(getCharacterName(0x1160)).toBe('HANGUL JUNGSEONG FILLER')
+    expect(getCharacterName(0x180b)).toBe('MONGOLIAN FREE VARIATION SELECTOR ONE')
+    expect(getCharacterName(0x180c)).toBe('MONGOLIAN FREE VARIATION SELECTOR TWO')
+    expect(getCharacterName(0x180d)).toBe('MONGOLIAN FREE VARIATION SELECTOR THREE')
+    expect(getCharacterName(0x180f)).toBe('MONGOLIAN FREE VARIATION SELECTOR FOUR')
     expect(getCharacterName(0x3164)).toBe('HANGUL FILLER')
   })
 
@@ -98,6 +102,8 @@ describe('Unicode Category Detection', () => {
   })
 
   test('getCategoryName identifies variation selectors', () => {
+    expect(getCategoryName(String.fromCodePoint(0x180b))).toBe('Variation Selector')
+    expect(getCategoryName(String.fromCodePoint(0x180f))).toBe('Variation Selector')
     expect(getCategoryName(String.fromCodePoint(0xfe00))).toBe('Variation Selector')
     expect(getCategoryName(String.fromCodePoint(0xe0100))).toBe('Variation Selector')
   })

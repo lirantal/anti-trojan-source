@@ -99,6 +99,8 @@ export function getCategoryName(char) {
 
   // Check if it's a variation selector or other known confusable
   if (
+    (codePoint >= 0x180b && codePoint <= 0x180d) ||
+    codePoint === 0x180f ||
     (codePoint >= 0xfe00 && codePoint <= 0xfe0f) ||
     (codePoint >= 0xe0100 && codePoint <= 0xe01ef)
   ) {
@@ -120,8 +122,12 @@ export function getCharacterName(codePoint) {
     [0x061c, 'ARABIC LETTER MARK'],
     [0x115f, 'HANGUL CHOSEONG FILLER'],
     [0x1160, 'HANGUL JUNGSEONG FILLER'],
+    [0x180b, 'MONGOLIAN FREE VARIATION SELECTOR ONE'],
+    [0x180c, 'MONGOLIAN FREE VARIATION SELECTOR TWO'],
+    [0x180d, 'MONGOLIAN FREE VARIATION SELECTOR THREE'],
     [0x3164, 'HANGUL FILLER'],
     [0x180e, 'MONGOLIAN VOWEL SEPARATOR'],
+    [0x180f, 'MONGOLIAN FREE VARIATION SELECTOR FOUR'],
     [0x200b, 'ZERO WIDTH SPACE'],
     [0x200c, 'ZERO WIDTH NON-JOINER'],
     [0x200d, 'ZERO WIDTH JOINER'],
