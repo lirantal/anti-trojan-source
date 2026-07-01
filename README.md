@@ -33,11 +33,11 @@ If you're using ESLint:
 
 `anti-trojan-source` provides comprehensive protection by detecting:
 
-- **281 explicit confusable scalars** — bidirectional controls, zero-width characters, BMP variation selectors, a small set of non-Cf/Cc invisibles (Hangul fillers, U+034F), plus **240** supplementary variation selectors (U+E0100–U+E01EF)
+- **285 explicit confusable scalars** — bidirectional controls, zero-width characters, BMP variation selectors, a small set of non-Cf/Cc invisibles (Hangul fillers, U+034F), plus **240** supplementary variation selectors (U+E0100–U+E01EF)
 - **All Unicode Format characters (Cf category)** — invisible formatting characters by category (including Unicode **tag letters** used for ASCII smuggling / hidden payloads)
 - **All Unicode Control characters (Cc category)** — except commonly-used whitespace (TAB, LF, CR)
 
-Category-based Cf/Cc detection keeps the tool **future-proof** as Unicode adds new format or control code points. The explicit list covers characters that matter for security but are **not** Cf/Cc (e.g. BMP variation selectors are **Mn**, not Cf).
+Category-based Cf/Cc detection keeps the tool **future-proof** as Unicode adds new format or control code points. The explicit list covers characters that matter for security but are **not** Cf/Cc (e.g. BMP and Mongolian free variation selectors are **Mn**, not Cf).
 
 ## Scope
 
@@ -50,7 +50,7 @@ This project scans **decoded Unicode text** — the string you get after reading
 | Trojan Source (bidi embeddings, overrides, isolates, PDF, etc.) | Cf ranges + explicit list |
 | Zero-width / word joiner / BOM / soft hyphen (where Cf or listed) | Cf + explicit list |
 | **Unicode Tags block** (U+E0001, U+E0020–U+E007F) — invisible ASCII-shaped payloads ([background](https://embracethered.com/blog/posts/2024/hiding-and-finding-text-with-unicode-tags/)) | Cf |
-| Variation selectors (BMP U+FE00–U+FE0F + supplement U+E0100–U+E01EF) | Explicit list (**Mn** in Unicode, not Cf) |
+| Variation selectors (Mongolian FVS U+180B–U+180D/U+180F, BMP U+FE00–U+FE0F, supplement U+E0100–U+E01EF) | Explicit list (**Mn** in Unicode, not Cf) |
 | **Strict explicit blocklist** of a few **non-Cf/Cc** scalars that often render invisibly (U+034F, U+115F, U+1160, U+3164) | Explicit list only |
 | Any other **Format (Cf)** or **Control (Cc)** code point | Category tables (Cc minus TAB/LF/CR) |
 | Dangerous confusables on the maintained explicit list (e.g. NO-BREAK SPACE) | Explicit list |
@@ -75,7 +75,7 @@ The following table summarizes attack styles versus what this tool flags:
 | **Trojan Source** | ✅ | Bidi / format controls per [trojansource.codes](https://trojansource.codes). |
 | **Glassworm / confusable identifiers** | ✅ (partial) | Flags **explicit** confusables and **all** Cf/Cc — not a complete homoglyph alphabet. |
 | **Unicode tag / “ASCII smuggling”** | ✅ | Tag letters are **Cf**; see [Embrace The Red](https://embracethered.com/blog/posts/2024/hiding-and-finding-text-with-unicode-tags/). |
-| **Extended variation selectors** | ✅ | U+E0100–U+E01EF on explicit list. |
+| **Variation-selector hidden payloads** | ✅ | Mongolian FVS U+180B–U+180D/U+180F, BMP selectors U+FE00–U+FE0F, and supplement U+E0100–U+E01EF are on the explicit list. |
 | **Category-based Cf / Cc** | ✅ | Future-proof for new format/control code points. |
 | **Invisible letters (strict list)** | ✅ | U+034F, Hangul fillers — explicit blocklist only. |
 | **Extended homoglyphs / extra invisibles** | ✅ (opt-in) | Use CLI **`--extended`** or **`--all`**, or `hasConfusables({ extended: true })`. Noisier; see [`src/extended-blocklist.js`](src/extended-blocklist.js). |
@@ -83,6 +83,8 @@ The following table summarizes attack styles versus what this tool flags:
 ## Why is Confusable Unicode Character detection important?
 
 The following publication on the topic of unicode characters attacks, dubbed [Trojan Source: Invisible Vulnerabilities](https://trojansource.codes/trojan-source.pdf), has caused a lot of concern from potential supply chain attacks where adversaries are able to inject malicious code into the source code of a project, slipping by unseen in the code review process. This project expands on that to detect other forms of confusable characters that can be used in similar attacks.
+
+Invisible variation selectors can support the same adversary action pattern: an attacker can insert default-ignorable selectors into source, generated code, prompts, policy files, or reviewed text so that the displayed content looks ordinary while the decoded text contains extra scalars. That can evade naive review, string comparisons, allow/deny lists, signing workflows, or downstream tools that treat the raw Unicode text differently from the reviewer. `anti-trojan-source` reports these selectors as high-severity findings so reviewers can remove them unless the file intentionally contains Mongolian or other standardized variation sequences.
 
 For more information on the topic, you're welcome to read on the official website [trojansource.codes](https://trojansource.codes/) and the following [source code repository](https://github.com/nickboucher/trojan-source/) which contains the source code of the publication.
 

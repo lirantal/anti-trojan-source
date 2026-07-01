@@ -41,8 +41,34 @@ test('detects NO-BREAK SPACE in fixture file', () => {
 })
 
 test('the list should include Extended Variation Selectors', () => {
-  // 41 explicit BMP scalars + 240 Extended Variation Selectors = 281
-  expect(confusableChars.length).toBe(281)
+  // 45 explicit BMP scalars + 240 Extended Variation Selectors = 285
+  expect(confusableChars.length).toBe(285)
+})
+
+test('detects Mongolian Free Variation Selectors by default', () => {
+  const mongolianFreeVariationSelectors = [0x180b, 0x180c, 0x180d, 0x180f]
+
+  mongolianFreeVariationSelectors.forEach((codePoint) => {
+    const textWithSelector = `const value${String.fromCodePoint(codePoint)} = 123`
+    expect(hasConfusables({ sourceText: textWithSelector })).toBe(true)
+  })
+})
+
+test('detailed mode reports Mongolian Free Variation Selectors as high severity variation selectors', () => {
+  const findings = hasConfusables({
+    sourceText: `a${String.fromCodePoint(0x180b)}b${String.fromCodePoint(0x180f)}c`,
+    detailed: true
+  })
+
+  expect(findings.map((f) => f.codePoint)).toEqual(['U+180B', 'U+180F'])
+  expect(findings.map((f) => f.name)).toEqual([
+    'MONGOLIAN FREE VARIATION SELECTOR ONE',
+    'MONGOLIAN FREE VARIATION SELECTOR FOUR'
+  ])
+  findings.forEach((f) => {
+    expect(f.category).toBe('Variation Selector')
+    expect(f.severity).toBe('high')
+  })
 })
 
 test('detects Extended Variation Selectors (U+E0100)', () => {

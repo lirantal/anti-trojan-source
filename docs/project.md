@@ -5,7 +5,7 @@
 `anti-trojan-source` is a security tool designed to detect and prevent attacks that use confusable Unicode characters to create visually deceptive code. This includes Trojan Source attacks, which exploit bidirectional characters, as well as other attacks like glassworm that use invisible characters to hide malicious code.
 
 The tool provides comprehensive detection through:
-- **Explicit character list**: 277 dangerous Unicode characters including bidirectional text markers, zero-width characters, and variation selectors
+- **Explicit character list**: 285 dangerous Unicode characters including bidirectional text markers, zero-width characters, and variation selectors
 - **Category-based detection**: Automatically detects ALL Unicode Format (Cf) and Control (Cc) characters by category, making the tool future-proof against new Unicode characters
 - **Enhanced reporting**: Detailed findings with line/column numbers, character names, and categories
 
@@ -38,10 +38,10 @@ These aliases are deprecated and will be removed in a future major release. New 
 
 The tool works in two complementary ways:
 
-1. **Explicit Character List**: Searches for a predefined list of 277 dangerous Unicode characters, including:
+1. **Explicit Character List**: Searches for a predefined list of 285 dangerous Unicode characters, including:
    - Bidirectional text markers (U+202A-U+202E, etc.)
    - Zero-width characters (U+200B, U+200C, U+200D)
-   - Variation selectors (U+FE00-U+FE0F and U+E0100-U+E01EF)
+   - Variation selectors (Mongolian FVS U+180B-U+180D/U+180F, U+FE00-U+FE0F, and U+E0100-U+E01EF)
    - Other invisible confusable characters
 
 2. **Category-Based Detection**: Checks each character against Unicode categories:

@@ -27,12 +27,13 @@ The following is the list of Unicode characters that are considered dangerous an
 *   `U+2063`: Invisible Separator
 *   `U+00AD`: Soft Hyphen
 *   `U+00A0`: No-Break Space
+*   `U+180B` to `U+180D`, `U+180F`: Mongolian Free Variation Selectors (FVS1-FVS4)
 *   `U+FE00` to `U+FE0F`: Variation Selectors 1-16
 *   `U+E0100` to `U+E01EF`: Variation Selectors Supplement (240 characters)
 *   `U+FEFF`: Zero Width No-Break Space
 *   `U+180E`: Mongolian Vowel Separator
 
-This list is stored in the `src/constants.js` file. The Extended Variation Selectors (U+E0100 to U+E01EF) are programmatically generated to avoid hardcoding 240 individual character entries.
+This list is stored in the `src/constants.js` file. The Extended Variation Selectors (U+E0100 to U+E01EF) are programmatically generated to avoid hardcoding 240 individual character entries. The Mongolian Free Variation Selectors are listed explicitly because they are nonspacing marks (Mn), not format/control characters, but are default-ignorable variation selectors that can hide payload markers in reviewed text.
 
 ### Category-Based Detection
 
