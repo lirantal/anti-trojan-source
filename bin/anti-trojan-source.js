@@ -5,6 +5,18 @@ import { globby } from 'globby'
 import { hasConfusables, hasConfusablesInFiles } from '../src/main.js'
 import { formatMinimal, formatVerbose, formatSuccess, calculateStats } from '../src/formatter.js'
 
+// Release our reference to stdin so the process can exit once work is done.
+// `unref` only exists on socket-backed stdin (a TTY or a pipe). In non-TTY
+// environments such as some CI runners (e.g. GitLab) or Docker without `-t`,
+// stdin can be a plain stream with no `unref`, so calling it unconditionally
+// crashes with "TypeError: process.stdin.unref is not a function" before any
+// scanning happens. Guard the call. See issue #36.
+function releaseStdin() {
+  if (typeof process.stdin.unref === 'function') {
+    process.stdin.unref()
+  }
+}
+
 const cli = meow(
   `
 	Usage
@@ -62,7 +74,7 @@ const rl = readline.createInterface({
 
 if (cli.input?.length > 0 || (cli.flags.hasOwnProperty('files') && cli.flags.files !== '')) {
   handleCliFlags({ filesList: cli.input, flags: cli.flags })
-  process.stdin.unref()
+  releaseStdin()
 } else {
   // this should be a debug() use case: console.log('[waiting to process input from STDIN...]')
   handleStdin()
@@ -155,6 +167,6 @@ function handleStdin() {
         }
       }
     }
-    process.stdin.unref()
+    releaseStdin()
   })
 }
