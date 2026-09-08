@@ -23,6 +23,13 @@
 
 Detects cases of [trojan source attacks](https://trojansource.codes) that employ unicode bidi attacks to inject malicious code, as well as other attacks that use confusable characters (such as glassworm attacks). The tool uses both an explicit list of dangerous Unicode characters and category-based detection to catch invisible characters by their Unicode category (Format and Control categories).
 
+Following is how `anti-trojan-source` CLI detects cases of potentially harmful characters, identified from the Glassworm attack:
+
+<img width="830" height="443" alt="SCR-20260821-sius" src="https://github.com/user-attachments/assets/05c321f9-04d9-4c26-ab9c-6e05bb85893e" />
+
+
+## Video example of Anti Trojan Source CLI
+
 <https://github.com/user-attachments/assets/8f10628f-3746-469e-a296-01523beeaa42>
 
 If you're using ESLint:
