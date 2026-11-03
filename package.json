@@ -236,5 +236,6 @@
       }
     ],
     "@semantic-release/github"
-  ]
+  ],
+  "packageManager": "npm@11.21.0"
 }
